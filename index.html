@@ -1,19 +1,131 @@
 <html>
 <head>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.14.2/highlight.min.js"></script>
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="https://d3js.org/topojson.v2.min.js"></script>
 </head>
+<style>
+  .country{
+    fill: none;
+    stroke: black;
+  }
+  .outline{
+    stroke: black;
+    stroke-width: 1px;
+    fill:none;
+  }
+</style>
 
 <body>
   <h1>World Happiness Visualization</h1>
   <h3>INFO 3300: Project 2</h3>
   <p id="header">Aileen Cai (ac952), Nate Schickler (njs59)</p>
-  <p>Data is taken from <a href="https://www.kaggle.com/unsdsn/world-happiness/version/2?login=true"></a></p>
+  <p>Data is taken from <a href="https://www.kaggle.com/unsdsn/world-happiness/version/2?login=true">Kaggle</a></p>
+
+<!-- map of countries -->
+<svg id= "happinessMap" height = "600" width ="1000" ></svg>
 </body>
 
 <script>
 // TODO - MAKE MAP OF COUNTRIES - SEQUENTIAL COLOR SCHEME FOR LEVELS OF HAPPINESS.
  // hover over each country to get the following data: country name, happiness rank out of 158,and happiness score #
+
+const svg = d3.select("#happinessMap");
+const height = svg.attr("height");
+const width = svg.attr("width");
+const margin = { top: 20, right: 20, bottom: 20, left:20};
+const mapHeight = height - margin.top - margin.bottom;
+const mapWidth = width - margin.left - margin.right;
+const map = svg.append("g")
+                .attr("transform","translate("+margin.left+","+margin.top+")");
+
+// data 2015
+const getData = async () => {
+  var world = await d3.json("world_110m.json");
+  console.log(world)
+  var countries = topojson.feature(world, world.objects.countries);
+  var countriesMesh = topojson.mesh(world, world.objects.countries);
+  console.log(countries)
+  var projection = d3.geoEqualEarth().fitSize([mapWidth, mapHeight],countries);
+  var path = d3.geoPath().projection(projection);
+
+
+  // draw map
+  map.selectAll("path").data(countries.features)
+    .enter()
+    .append("path")
+    .attr("class","country")
+    .attr("d",path);
+
+  map.append("path")
+    .datum(countriesMesh)
+    .attr("class","outline")
+    .attr("d",path);
+
+  // get data from 2015 csv
+  const data2015 = await d3.csv("data_worldHappiness/2015.csv");
+  console.log(data2015)
+
+  // tsv of country names
+  const countryID = await d3.tsv("world-110m-country-names.tsv")
+  console.log(countryID)
+    // process data
+    // {country name: {happiness score, rank, ...}, country name2: {rank, ..., ...}, ....}
+  // var country_object = {}
+  // var idToCountry = {}
+  //   for (i = 0; i < data2015.length; i++){
+  //     var country_data = {}
+  //     country_object[data2015[i]['Country']] = country_data;
+  //     idToCountry[countryID[i]['id']] = data2015[i]['Country'];
+  //     country_data['Region'] = data2015[i]['Region']
+  //     country_data['Happiness Rank'] = data2015[i]['Happiness Rank']
+  //     country_data['Happiness Score'] = data2015[i]['Happiness Score']
+  //     country_data['GDP'] = data2015[i]['Economy (GDP per Capita)']
+  //     country_data['Family'] = data2015[i]['Family']
+  //     country_data['Life Expectancy'] = data2015[i]['Health (Life Expectancy)']
+  //     country_data['Government Trust'] = data2015[i]['Trust (Government Corruption)']
+  //   }
+  //   console.log('country_object',country_object)
+  //   console.log('idtoCountry', idToCountry)
+
+  var country_object = {}
+  var idToCountry = {}
+    for (i = 0; i < data2015.length; i++){
+      country_object[data2015[i]['Country']] = data2015[i]['Happiness Score'];
+      idToCountry[countryID[i]['id']] = data2015[i]['Country'];
+    }
+    console.log('country_object',country_object)
+    console.log('idtoCountry', idToCountry)
+
+  // get min and max values
+    // var happiness_scores =  []
+    // for(country in country_object){
+    //   happiness_scores.push(country_object[country]['Happiness Score'])
+    // }
+    // var max_score = Math.max.apply(null, happiness_scores)
+    // var min_score = Math.min.apply(null, happiness_scores)
+
+  // console.log('happiness', country_object['Switzerland']['Happiness Score'])
+  // console.log('NumToCountry',idToCountry['4'])
+  // console.log('test', country_object[idToCountry['4']]['Happiness Score'] )
+
+  let colorScale = d3.scaleQuantile()
+      .domain(d3.values(country_object))
+      .range(["#eff6fc","#c8ddf0","#8abfdd","#4592c7","#1561a8","#08306b"]);
+
+   map.selectAll(".country")
+    .style("fill", d => colorScale(country_object[idToCountry[d.id]] ));
+
+
+
+}
+getData();
+
+
+
+// data 2016
+
+// data 2017
 
 // TODO- CREATE BUTTONS FOR YEARS (2015, 2016, 2017 )
 
