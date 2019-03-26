@@ -6,7 +6,7 @@
 </head>
 <style>
   .country{
-    fill: red;
+    fill: none;
     stroke: black;
   }
   .outline{
@@ -38,7 +38,6 @@ const mapHeight = height - margin.top - margin.bottom;
 const mapWidth = width - margin.left - margin.right;
 const map = svg.append("g")
                 .attr("transform","translate("+margin.left+","+margin.top+")");
-
 // data 2015
 const getData = async () => {
   var world = await d3.json("world-110m.json");
@@ -55,7 +54,6 @@ const getData = async () => {
     .append("path")
     .attr("class","country")
     .attr("d",path);
-
   map.append("path")
     .datum(countriesMesh)
     .attr("class","outline")
@@ -65,45 +63,45 @@ const getData = async () => {
   const data2015 = await d3.csv("data_worldHappiness/2015.csv");
   console.log('DATA2015',data2015)
 
+  // const data2016 = await d3.csv("data_worldHappiness/2016.csv");
+  // console.log('DATA2016',data2016)
+  //
+  // const data2017 = await d3.csv("data_worldHappiness/2017.csv");
+  // console.log('DATA2017',data2017)
+
   // tsv of country names
   const countryID = await d3.tsv("world-110m-country-names.tsv")
   console.log('countryID',countryID)
     // process data
     // {country name: {happiness score, rank, ...}, country name2: {rank, ..., ...}, ....}
-
-  var country_object = {}
-  var idToCountry = {}
-
-  countryID.forEach(row => {
-    country_object[row.name] = 0;
-    idToCountry[row.id] = row.name;
-  })
-  data2015.forEach(row => {
-    country_object[row.Country] += row['Happiness Score'];
-  })
-
-    console.log('country_object',country_object)
-    console.log('idtoCountry', idToCountry)
+    var country_object = {}
+    var idToCountry = {}
+    countryID.forEach(row => {
+      country_object[row.name] = 0;
+      idToCountry[row.id] = row.name;
+    })
+    data2015.forEach(row => {
+      country_object[row.Country] += row['Happiness Score'];
+    })
+      // console.log('country_object',country_object)
+      // console.log('idtoCountry', idToCountry)
 
   let colorScale = d3.scaleQuantile()
       .domain(d3.values(country_object))
       .range(["#eff6fc","#c8ddf0","#8abfdd","#4592c7","#1561a8","#08306b"]);
-
    map.selectAll(".country")
     .style("fill", d => colorScale(country_object[idToCountry[d.id]] ));
-
 }
 getData();
-
 
 // data 2016
 
 // data 2017
 
 // TODO- CREATE BUTTONS FOR YEARS (2015, 2016, 2017 )
-
-
-// TODO - 5? SCATTERPLOTS FOR Happiness vs (GDP, family size, health, freedom, and govt trust)
+// TODO- CREATE SCALE
+// TODO- CREATE TEXT WHEN HOVERING OVER COUNTRIES
+// TODO - 5????? SCATTERPLOTS ???? FOR Happiness vs (GDP, family size, health, freedom, and govt trust)
 // create a dropdown to select which variable to compare w happiness, color countries by its region
 
 </script>
