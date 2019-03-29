@@ -4,16 +4,39 @@
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="https://d3js.org/topojson.v2.min.js"></script>
 </head>
+<!-- style inspiration from https://mimno.github.io/showcase/project2/workforce/ -->
 <style>
   .country{
     fill: none;
-    stroke: black;
+    /* stroke: black; */
   }
   .outline{
-    stroke: black;
+    stroke: white;
     stroke-width: 1px;
-    fill:none;
+    fill: none;
   }
+	form {
+    margin: 0;
+    padding: 0;
+  }
+	button.typeButton {
+    border:1px solid #2166ac;
+    padding: 10px;
+    font-size: 18px;
+    background-color: white;
+    color: #2166ac;
+    width: 130px;
+    margin: 10px 15px 0 0;
+  }
+	button.typeButton:hover {
+    background-color: black;
+    color: #fff;
+  }
+	button.typeButtonOver {
+    background-color: #4992c4;
+    color: #fff;
+  }
+
 </style>
 
 <body>
@@ -22,25 +45,39 @@
   <p id="header">Aileen Cai (ac952), Nate Schickler (njs59)</p>
   <p>Data is taken from <a href="https://www.kaggle.com/unsdsn/world-happiness/version/2?login=true">Kaggle</a></p>
 
+<!-- buttons to select year -->
+<form>
+  <button id="2015" type="button" class="typeButton typeButtonOver">2015</button>
+  <button id="2016" type="button" class="typeButton">2016</button>
+  <button id="2017" type="button" class="typeButton">2017</button>
+</form>
+
+
 <!-- map of countries -->
-<div>
+<div id="2015_map">
   <svg class="happinessMap" id= "happinessMap2015" height = "600" width ="1000" ></svg>
-  <svg class="legend" id= "legend2015"  ></svg>
+  <svg class="legend" id= "legend2015"></svg>
 </div>
-<div>
+<div id="2016_map">
   <svg class="happinessMap" id= "happinessMap2016" height = "600" width ="1000" ></svg>
-  <svg class="legend" id= "legend2016" ></svg>
+  <svg class="legend" id= "legend2016"></svg>
 </div>
-<div>
+<div id="2017_map">
   <svg class="happinessMap" id= "happinessMap2017" height = "600" width ="1000" ></svg>
-  <svg class="legend" id= "legend2017" ></svg>
+  <svg class="legend" id= "legend2017"></svg>
 </div>
 
 </body>
 
 <script>
-// TODO - MAKE MAP OF COUNTRIES - SEQUENTIAL COLOR SCHEME FOR LEVELS OF HAPPINESS.
+
  // hover over each country to get the following data: country name, happiness rank out of 158,and happiness score #
+// TODO- CREATE TEXT WHEN HOVERING OVER COUNTRIES ***
+ // TODO- CREATE LEGEND ***
+
+ // TODO - 5????? SCATTERPLOTS ???? FOR Happiness vs (GDP, family size, health, freedom, and govt trust)
+ // create a dropdown to select which variable to compare w happiness, color countries by its region
+
 
 var height = 600;
 var width = 1000;
@@ -50,7 +87,6 @@ var mapWidth = width - margin.left - margin.right;
 
 function yearCSV(year){
   d3.json("world-110m.json").then(function(world){
-
     d3.csv("data_worldHappiness/"+year+".csv").then(function(dataYear){
       d3.tsv("world-110m-country-names.tsv").then(function(countryID){
         var country_object = {}
@@ -67,26 +103,25 @@ function yearCSV(year){
             country_object[row.Country] += row['Happiness Score'];
           }
         });
-        console.log(dataYear)
-        console.log(country_object)
+        // console.log(dataYear)
+        // console.log(country_object)
         worldMapSVG(year, world, country_object, idToCountry);
       });
     });
-
   });
-
 }
+
 yearCSV("2015")
 yearCSV("2016")
 yearCSV("2017")
 
-// make world map svg
+
+// make world map svg and color
 function worldMapSVG(year, world, country_object, idToCountry){
   var countries = topojson.feature(world, world.objects.countries);
   var countriesMesh = topojson.mesh(world, world.objects.countries);
   var projection = d3.geoEqualEarth().fitSize([mapWidth, mapHeight],countries);
   var path = d3.geoPath().projection(projection);
-
   var svg = d3.select("svg#happinessMap" + year);
   var map = svg.append("g")
                   .attr("transform","translate("+margin.left+","+margin.top+")");
@@ -99,21 +134,42 @@ function worldMapSVG(year, world, country_object, idToCountry){
     .datum(countriesMesh)
     .attr("class","outline")
     .attr("d",path);
-
     var colorScale = d3.scaleQuantile()
         .domain(d3.values(country_object))
-        .range(["#eff6fc","#c8ddf0","#8abfdd","#4592c7","#1561a8","#08306b"]);
+        .range(["#c8ddf0","#4592c7","#1561a8","#08306b"]);
     map.selectAll(".country")
       .style('fill', function(d){
          return colorScale(country_object[idToCountry[d.id]]);
     });
 }
 
-// TODO- CREATE BUTTONS FOR YEARS (2015, 2016, 2017 )
-// TODO- CREATE SCALE
-// TODO- CREATE TEXT WHEN HOVERING OVER COUNTRIES
-// TODO - 5????? SCATTERPLOTS ???? FOR Happiness vs (GDP, family size, health, freedom, and govt trust)
-// create a dropdown to select which variable to compare w happiness, color countries by its region
+// button-display year
+document.getElementById("2015").onclick = function(){
+  document.getElementById("2015_map").style.display = "block";
+  document.getElementById("2016_map").style.display = "none";
+  document.getElementById("2017_map").style.display = "none";
+  document.getElementById("2015").className = "typeButton typeButtonOver";
+	document.getElementById("2016").className = "typeButton";
+	document.getElementById("2017").className = "typeButton";
+}
+
+document.getElementById("2016").onclick = function(){
+  document.getElementById("2016_map").style.display = "block";
+  document.getElementById("2015_map").style.display = "none";
+  document.getElementById("2017_map").style.display = "none";
+  document.getElementById("2016").className = "typeButton typeButtonOver";
+	document.getElementById("2015").className = "typeButton";
+	document.getElementById("2017").className = "typeButton";
+}
+
+document.getElementById("2017").onclick = function(){
+  document.getElementById("2017_map").style.display = "block";
+  document.getElementById("2015_map").style.display = "none";
+  document.getElementById("2016_map").style.display = "none";
+  document.getElementById("2017").className = "typeButton typeButtonOver";
+	document.getElementById("2016").className = "typeButton";
+	document.getElementById("2015").className = "typeButton";
+}
 
 </script>
 
