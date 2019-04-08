@@ -3,47 +3,31 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.14.2/highlight.min.js"></script>
   <script src="https://d3js.org/d3.v5.min.js"></script>
   <script src="https://d3js.org/topojson.v2.min.js"></script>
+
+  <link type="text/css" rel="stylesheet" href="https://fast.fonts.net/cssapi/c1ece602-4b8f-4767-a71f-aa828be38869.css"/>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 </head>
 <!-- style inspiration from https://mimno.github.io/showcase/project2/workforce/ -->
 <style>
-  .country{
-    fill: none;
-    /* stroke: black; */
-  }
-  .outline{
-    stroke: white;
-    stroke-width: 1px;
-    fill: none;
-  }
-
-	form {
-    margin: 0;
-    padding: 0;
-  }
-	button.typeButton {
-    border:1px solid #2166ac;
-    padding: 10px;
-    font-size: 18px;
-    background-color: white;
-    color: #2166ac;
-    width: 130px;
-    margin: 10px 15px 0 0;
-  }
-	button.typeButton:hover {
-    background-color: black;
-    color: #fff;
-  }
-	button.typeButtonOver {
-    background-color: #4992c4;
-    color: #fff;
-  }
-
+  body { font-family: "LinotypeUniversW01-Ligh_723625"; font-size: 17px; line-height: 22px; margin: 40px 50px 50px 50px; }
+  h1 { font-family: "LinotypeUniversW01-Cn"; color: #000; font-size: 3em; line-height: 1.2em; margin: 0 0 5px 0; }
+	h2 { font-family: "LinotypeUniversW01-Medi_723673"; margin: 0; color: #2166ac; font-size: 1.3em; line-height: 1.1em; }
+	h3 { margin: 0 0 45px 0;font-size: 2em; color: #686868; }
+	h4 { margin: 0;  font-size: 1.1em;  font-family: "LinotypeUniversW01-Cn"; }
+	p { font-size: 1em; margin: 0; padding: 0; line-height: 1.4em; }
+  div.instructions { font-family: "LinotypeUniversW01-Cn"; color: #2166ac; }
+  .country{ fill: none;}
+  .outline{stroke: white;stroke-width: 1px;fill: none;}
+	form {margin: 0;padding: 0;}
+	button.typeButton {border:1px solid #2166ac;padding: 10px;font-size: 18px;background-color: white;color: #2166ac;width: 130px;margin: 10px 15px 0 0;}
+	button.typeButton:hover {background-color: black;color: #fff;}
+	button.typeButtonOver {background-color: #4992c4;color: #fff;}
 </style>
 
 <body>
   <h1>World Happiness Visualization</h1>
   <h3>INFO 3300: Project 2</h3>
-  <p id="header">Aileen Cai (ac952), Nate Schickler (njs59)</p>
+  <h4>Aileen Cai (ac952), Nate Schickler (njs59)</h4>
   <p>The World Happiness Report is a landmark survey of the state of global happiness.
     The first report was published in 2012, the second in 2013, the third in 2015,
      and the fourth in the 2016 Update. The World Happiness 2017, which ranks 155
@@ -55,14 +39,16 @@
       statistics, health, public policy and more – describe how measurements of
       well-being can be used effectively to assess the progress of nations. The reports
       review the state of happiness in the world today and show how the new science of
-      happiness explains personal and national variations in happiness.</p>
+      happiness explains personal and national variations in happiness.</p><br>
   <p>Happiness ScoreA metric measured in 2015-2017 by asking the
     sampled people the question: "How would you rate your happiness
-    on a scale of 0 to 10 where 10 is the happiest."</p>
+    on a scale of 0 to 10 where 10 is the happiest."</p><br>
   <p>Data and context is taken from <a href="https://www.kaggle.com/unsdsn/world-happiness/version/2?login=true">Kaggle.</a>
-  Design inspiration from https://mimno.github.io/showcase/project2/workforce/ </p>
+  Design inspiration from https://mimno.github.io/showcase/project2/workforce/ </p><br>
 
 <!-- buttons to select year -->
+<h2>SELECT YEAR</h2>
+<div class="instructions"> Click a button below to view the happiness score for each country in the choropleth map.</div>
 <form>
   <button id="2015" type="button" class="typeButton typeButtonOver">2015</button>
   <button id="2016" type="button" class="typeButton">2016</button>
@@ -71,6 +57,7 @@
 
 
 <!-- map of countries -->
+
 <div id="2015_map">
   <svg class="happinessMap" id= "happinessMap2015" height = "600" width ="1000" ></svg>
   <svg class="legend" id= "legend2015"></svg>
