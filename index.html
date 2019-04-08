@@ -22,6 +22,7 @@
 	button.typeButton {border:1px solid #2166ac;padding: 10px;font-size: 18px;background-color: white;color: #2166ac;width: 130px;margin: 10px 15px 0 0;}
 	button.typeButton:hover {background-color: black;color: #fff;}
 	button.typeButtonOver {background-color: #4992c4;color: #fff;}
+  .tip{ pointer-events: none; position: absolute; background-color:white; opacity: 0.8; height: 50px; width: 150px; padding:3px; text-align:left; z-index: 9999; font-size: 12px;}
 </style>
 
 <body>
@@ -54,10 +55,7 @@
   <button id="2016" type="button" class="typeButton">2016</button>
   <button id="2017" type="button" class="typeButton">2017</button>
 </form>
-
-
 <!-- map of countries -->
-
 <div id="2015_map">
   <svg class="happinessMap" id= "happinessMap2015" height = "600" width ="1000" ></svg>
   <svg class="legend" id= "legend2015"></svg>
@@ -74,14 +72,9 @@
 </body>
 
 <script>
-
  // hover over each country to get the following data: country name, happiness rank out of 158,and happiness score #
-// TODO- CREATE TEXT WHEN HOVERING OVER COUNTRIES ***
- // TODO- CREATE LEGEND ***
-
- // TODO - 5 SCATTERPLOTS ???? FOR Happiness vs (GDP, family size, health, freedom, and govt trust)
+// TODO - 5 SCATTERPLOTS ???? FOR Happiness vs (GDP, family size, health, freedom, and govt trust)
  // create a dropdown to select which variable to compare w happiness, color countries by its region
-
 
 var height = 600;
 var width = 1000;
@@ -110,20 +103,40 @@ function yearCSV(year){
           }
         });
         // console.log(dataYear)
-        console.log(country_object)
+        // console.log(country_object)
+
+        var tip;
+				d3.helper = {};
+				d3.helper.tip = function(text) {
+			    return function(selectedCountry){
+			        var textBox = d3.select("body").node();
+			        selectedCountry.on("mouseover", function(d, i){
+			            d3.select("body").selectAll(".tip").remove();
+			            var position = d3.mouse(textBox);
+			           	tip = d3.select("body").append("div").attr("class", "tip");
+			            tip.style("left", position[0]).style("top", position[1]).html(text(d, i));
+			        	})
+			        .on("mouseout", function(d, i){
+			            tip.remove();
+			        	});
+			   	 	};
+				};
+
+        console.log('id',idToCountry)
+        console.log('country',country_object)
+
         // var arr = Object.keys( country_object ).map(function ( key ) { return parseInt(country_object[key]); });
         // var min = Math.max.apply( 0, arr );
         // console.log(min)
         // console.log('happinessScore', Math.max.apply(Object.values(country_object).map(Number) ));
-
         // var arr = Object.values(country_object);
         var scoreArr = Object.values(country_object).map(Number).filter(Number);
         var maxScore = Math.max.apply(null,scoreArr)
 
         worldMapSVG(year, world, country_object, idToCountry);
-        worldMapLegend(year, maxScore);
-        // create legend for each year
-
+          // create legend for each year
+        worldMapLegend(year);
+        // worldMapLegend(year, maxScore);
       });
     });
   });
@@ -142,7 +155,7 @@ function worldMapSVG(year, world, country_object, idToCountry){
   var path = d3.geoPath().projection(projection);
   var svg = d3.select("svg#happinessMap" + year);
   var map = svg.append("g")
-                  .attr("transform","translate("+margin.left+","+margin.top+")");
+                  .attr("transform","translate("+(-140)+","+margin.top+")");
   map.selectAll("path").data(countries.features)
     .enter()
     .append("path")
@@ -156,53 +169,50 @@ function worldMapSVG(year, world, country_object, idToCountry){
         .domain(d3.values(country_object))
         .range(["#c8ddf0","#4592c7","#1561a8","#08306b"]);
     map.selectAll(".country")
+      .call(d3.helper.tip(function(d){
+        return "<b>Country: " + idToCountry[d.id]+"</b><br> Score: " + country_object[idToCountry[d.id]];
+;      }))
       .style('fill', function(d){
          return colorScale(country_object[idToCountry[d.id]]);
     });
+
 }
 
 
 // create a legend for map
-function worldMapLegend(year, maxScore){
+function worldMapLegend(year){
   var legend = d3.select("svg#legend" + year);
+  var step = 1;
   var legendW = 300;
   var legendH = 50;
-  var bar_H = 40;
-  var step = 1;
 
   var bar_scale = d3.scaleLinear()
-    .domain([0, maxScore])
+    .domain([0, 8])
     .range([0, 250]);
-
   var pixel_scale = d3.scaleLinear()
     .domain([0, 250])
-    .range([0, maxScore]);
-
+    .range([0, 8]);
   var bar_axis = d3.axisBottom(bar_scale)
     .ticks(5, d3.format(".3n"));
 
   legend.append("g")
-      .attr("transform","translate("+(10)+","+(bar_H + 5)+")")
+      .attr("transform","translate("+(10)+","+(45)+")")
       .call(bar_axis);
-
   var bar = legend.append("g")
       .attr("transform", "translate("+(10)+","+(0)+")");
-
   var color_scale = d3.scaleQuantile()
-      .domain([0, maxScore])
+      .domain([0, 8])
       .range(["#c8ddf0","#4592c7","#1561a8","#08306b"]);
 
   for (var i = 0; i<legendW-50; i += step) {
       bar.append("rect")
         .attr("x", i)
         .attr("y", 0)
-        .attr("height", bar_H)
+        .attr("height", 40)
         .attr("width", step)
         .style("fill", color_scale(pixel_scale(i)));
     }
 }
-
-
 
 // button-display year
 document.getElementById("2016_map").style.display = "none";
