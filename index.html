@@ -15,6 +15,7 @@
     stroke-width: 1px;
     fill: none;
   }
+
 	form {
     margin: 0;
     padding: 0;
@@ -43,7 +44,23 @@
   <h1>World Happiness Visualization</h1>
   <h3>INFO 3300: Project 2</h3>
   <p id="header">Aileen Cai (ac952), Nate Schickler (njs59)</p>
-  <p>Data is taken from <a href="https://www.kaggle.com/unsdsn/world-happiness/version/2?login=true">Kaggle</a></p>
+  <p>The World Happiness Report is a landmark survey of the state of global happiness.
+    The first report was published in 2012, the second in 2013, the third in 2015,
+     and the fourth in the 2016 Update. The World Happiness 2017, which ranks 155
+     countries by their happiness levels, was released at the United Nations at an
+     event celebrating International Day of Happiness on March 20th. The report continues
+     to gain global recognition as governments, organizations and civil society
+     increasingly use happiness indicators to inform their policy-making decisions.
+      Leading experts across fields – economics, psychology, survey analysis, national
+      statistics, health, public policy and more – describe how measurements of
+      well-being can be used effectively to assess the progress of nations. The reports
+      review the state of happiness in the world today and show how the new science of
+      happiness explains personal and national variations in happiness.</p>
+  <p>Happiness ScoreA metric measured in 2015-2017 by asking the
+    sampled people the question: "How would you rate your happiness
+    on a scale of 0 to 10 where 10 is the happiest."</p>
+  <p>Data and context is taken from <a href="https://www.kaggle.com/unsdsn/world-happiness/version/2?login=true">Kaggle.</a>
+  Design inspiration from https://mimno.github.io/showcase/project2/workforce/ </p>
 
 <!-- buttons to select year -->
 <form>
@@ -75,7 +92,7 @@
 // TODO- CREATE TEXT WHEN HOVERING OVER COUNTRIES ***
  // TODO- CREATE LEGEND ***
 
- // TODO - 5????? SCATTERPLOTS ???? FOR Happiness vs (GDP, family size, health, freedom, and govt trust)
+ // TODO - 5 SCATTERPLOTS ???? FOR Happiness vs (GDP, family size, health, freedom, and govt trust)
  // create a dropdown to select which variable to compare w happiness, color countries by its region
 
 
@@ -91,10 +108,12 @@ function yearCSV(year){
       d3.tsv("world-110m-country-names.tsv").then(function(countryID){
         var country_object = {}
         var idToCountry = {}
+
         countryID.forEach(row => {
           country_object[row.name] = 0;
           idToCountry[row.id] = row.name;
         });
+
         dataYear.forEach(row => {
           if (year == '2017'){
             country_object[row.Country] += row['Happiness.Score'];
@@ -104,8 +123,20 @@ function yearCSV(year){
           }
         });
         // console.log(dataYear)
-        // console.log(country_object)
+        console.log(country_object)
+        // var arr = Object.keys( country_object ).map(function ( key ) { return parseInt(country_object[key]); });
+        // var min = Math.max.apply( 0, arr );
+        // console.log(min)
+        // console.log('happinessScore', Math.max.apply(Object.values(country_object).map(Number) ));
+
+        // var arr = Object.values(country_object);
+        var scoreArr = Object.values(country_object).map(Number).filter(Number);
+        var maxScore = Math.max.apply(null,scoreArr)
+
         worldMapSVG(year, world, country_object, idToCountry);
+        worldMapLegend(year, maxScore);
+        // create legend for each year
+
       });
     });
   });
@@ -143,7 +174,52 @@ function worldMapSVG(year, world, country_object, idToCountry){
     });
 }
 
+
+// create a legend for map
+function worldMapLegend(year, maxScore){
+  var legend = d3.select("svg#legend" + year);
+  var legendW = 300;
+  var legendH = 50;
+  var bar_H = 40;
+  var step = 1;
+
+  var bar_scale = d3.scaleLinear()
+    .domain([0, maxScore])
+    .range([0, 250]);
+
+  var pixel_scale = d3.scaleLinear()
+    .domain([0, 250])
+    .range([0, maxScore]);
+
+  var bar_axis = d3.axisBottom(bar_scale)
+    .ticks(5, d3.format(".3n"));
+
+  legend.append("g")
+      .attr("transform","translate("+(10)+","+(bar_H + 5)+")")
+      .call(bar_axis);
+
+  var bar = legend.append("g")
+      .attr("transform", "translate("+(10)+","+(0)+")");
+
+  var color_scale = d3.scaleQuantile()
+      .domain([0, maxScore])
+      .range(["#c8ddf0","#4592c7","#1561a8","#08306b"]);
+
+  for (var i = 0; i<legendW-50; i += step) {
+      bar.append("rect")
+        .attr("x", i)
+        .attr("y", 0)
+        .attr("height", bar_H)
+        .attr("width", step)
+        .style("fill", color_scale(pixel_scale(i)));
+    }
+}
+
+
+
 // button-display year
+document.getElementById("2016_map").style.display = "none";
+document.getElementById("2017_map").style.display = "none";
 document.getElementById("2015").onclick = function(){
   document.getElementById("2015_map").style.display = "block";
   document.getElementById("2016_map").style.display = "none";
