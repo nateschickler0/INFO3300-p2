@@ -14,7 +14,8 @@
 	h2 { font-family: "LinotypeUniversW01-Medi_723673"; margin: 0; color: #2166ac; font-size: 1.3em; line-height: 1.1em; }
 	h3 { margin: 0 0 45px 0;font-size: 2em; color: #686868; }
 	h4 { margin: 0;  font-size: 1.1em;  font-family: "LinotypeUniversW01-Cn"; }
-	p { font-size: 1em; margin: 0; padding: 0; line-height: 1.4em; }
+	p { font-size: 1em;  line-height: 1.4em; }
+  .note { font-size: 15px; padding-top: 5; color: #2166ac}
   div.instructions { font-family: "LinotypeUniversW01-Cn"; color: #2166ac; }
   .country{ fill: none;}
   .outline{stroke: white;stroke-width: 1px;fill: none;}
@@ -22,7 +23,7 @@
 	button.typeButton {border:1px solid #2166ac;padding: 10px;font-size: 18px;background-color: white;color: #2166ac;width: 130px;margin: 10px 15px 0 0;}
 	button.typeButton:hover {background-color: black;color: #fff;}
 	button.typeButtonOver {background-color: #4992c4;color: #fff;}
-  .tip{ pointer-events: none; position: absolute; background-color:white; opacity: 0.8; height: 50px; width: 150px; padding:3px; text-align:left; z-index: 9999; font-size: 12px;}
+  .tip{ pointer-events: none; position: absolute; background-color:white; opacity: 0.8; height: 70px; width: 150px; padding:3px; text-align:left; z-index: 9999; font-size: 12px;}
 </style>
 
 <body>
@@ -31,7 +32,7 @@
   <h4>Aileen Cai (ac952), Nate Schickler (njs59)</h4>
   <p>The World Happiness Report is a landmark survey of the state of global happiness.
     The first report was published in 2012, the second in 2013, the third in 2015,
-     and the fourth in the 2016 Update. The World Happiness 2017, which ranks 155
+     and the fourth in the 2016 Update. The World Happiness 2017, which ranks 158
      countries by their happiness levels, was released at the United Nations at an
      event celebrating International Day of Happiness on March 20th. The report continues
      to gain global recognition as governments, organizations and civil society
@@ -40,21 +41,22 @@
       statistics, health, public policy and more – describe how measurements of
       well-being can be used effectively to assess the progress of nations. The reports
       review the state of happiness in the world today and show how the new science of
-      happiness explains personal and national variations in happiness.</p><br>
+      happiness explains personal and national variations in happiness.</p>
   <p>Happiness ScoreA metric measured in 2015-2017 by asking the
     sampled people the question: "How would you rate your happiness
-    on a scale of 0 to 10 where 10 is the happiest."</p><br>
+    on a scale of 0 to 10 where 10 is the happiest."</p>
   <p>Data and context is taken from <a href="https://www.kaggle.com/unsdsn/world-happiness/version/2?login=true">Kaggle.</a>
-  Design inspiration from https://mimno.github.io/showcase/project2/workforce/ </p><br>
+  Design inspiration from https://mimno.github.io/showcase/project2/workforce/ </p></br>
 
 <!-- buttons to select year -->
 <h2>SELECT YEAR</h2>
-<div class="instructions"> Click a button below to view the happiness score for each country in the choropleth map.</div>
+<div class="instructions"> Click a button below to view the choropleth map for each year.</div>
 <form>
   <button id="2015" type="button" class="typeButton typeButtonOver">2015</button>
   <button id="2016" type="button" class="typeButton">2016</button>
   <button id="2017" type="button" class="typeButton">2017</button>
 </form>
+<p class="note">*Hover over each country to see the happiness score and rank (out of 159) </p>
 <!-- map of countries -->
 <div id="2015_map">
   <svg class="happinessMap" id= "happinessMap2015" height = "600" width ="1000" ></svg>
@@ -73,6 +75,7 @@
 
 <script>
  // hover over each country to get the following data: country name, happiness rank out of 158,and happiness score #
+// TODO round decimals for happiness score 2017
 // TODO - 5 SCATTERPLOTS ???? FOR Happiness vs (GDP, family size, health, freedom, and govt trust)
  // create a dropdown to select which variable to compare w happiness, color countries by its region
 
@@ -87,23 +90,27 @@ function yearCSV(year){
     d3.csv("data_worldHappiness/"+year+".csv").then(function(dataYear){
       d3.tsv("world-110m-country-names.tsv").then(function(countryID){
         var country_object = {}
+        var country_rank  = {}
         var idToCountry = {}
 
         countryID.forEach(row => {
           country_object[row.name] = 0;
+          country_rank[row.name] = 0;
           idToCountry[row.id] = row.name;
         });
 
         dataYear.forEach(row => {
           if (year == '2017'){
             country_object[row.Country] += row['Happiness.Score'];
+            country_rank[row.Country] = row['Happiness.Rank'];
           }
           else{
             country_object[row.Country] += row['Happiness Score'];
+            country_rank[row.Country] = row['Happiness Rank'];
           }
         });
         // console.log(dataYear)
-        // console.log(country_object)
+        // console.log(Object.keys(idToCountry).length);
 
         var tip;
 				d3.helper = {};
@@ -122,18 +129,20 @@ function yearCSV(year){
 			   	 	};
 				};
 
-        console.log('id',idToCountry)
-        console.log('country',country_object)
+        // console.log('id',Object.keys(idToCountry).length)
+        // console.log('country',country_object)
+        // console.log('country',country_rank)
+        // console.log('rank length',Object.keys(country_rank).length)
 
         // var arr = Object.keys( country_object ).map(function ( key ) { return parseInt(country_object[key]); });
         // var min = Math.max.apply( 0, arr );
         // console.log(min)
         // console.log('happinessScore', Math.max.apply(Object.values(country_object).map(Number) ));
         // var arr = Object.values(country_object);
-        var scoreArr = Object.values(country_object).map(Number).filter(Number);
-        var maxScore = Math.max.apply(null,scoreArr)
+        var scoreArr = Object.values(country_rank).map(Number).filter(Number);
+        var maxRank = Math.max.apply(null,scoreArr) + 1
 
-        worldMapSVG(year, world, country_object, idToCountry);
+        worldMapSVG(year, world, country_object, country_rank, idToCountry, maxRank);
           // create legend for each year
         worldMapLegend(year);
         // worldMapLegend(year, maxScore);
@@ -148,7 +157,7 @@ yearCSV("2017")
 
 
 // make world map svg and color
-function worldMapSVG(year, world, country_object, idToCountry){
+function worldMapSVG(year, world, country_object, country_rank, idToCountry, maxRank){
   var countries = topojson.feature(world, world.objects.countries);
   var countriesMesh = topojson.mesh(world, world.objects.countries);
   var projection = d3.geoEqualEarth().fitSize([mapWidth, mapHeight],countries);
@@ -170,19 +179,21 @@ function worldMapSVG(year, world, country_object, idToCountry){
         .range(["#c8ddf0","#4592c7","#1561a8","#08306b"]);
     map.selectAll(".country")
       .call(d3.helper.tip(function(d){
-        return "<b>Country: " + idToCountry[d.id]+"</b><br> Score: " + country_object[idToCountry[d.id]];
-;      }))
+        // console.log(country_rank[idToCountry[d.id]])
+        if (country_rank[idToCountry[d.id]] == 0){
+          return "<b>Country: " + idToCountry[d.id]+"</b><br> <b>Score: " + country_object[idToCountry[d.id]]+"</b><br> <b>Rank: " + maxRank +"</b>";
+        }
+        return "<b>Country: " + idToCountry[d.id]+"</b><br> <b>Score: " + country_object[idToCountry[d.id]]+"</b><br> <b>Rank: " + country_rank[idToCountry[d.id]]+"</b>";
+       }))
       .style('fill', function(d){
          return colorScale(country_object[idToCountry[d.id]]);
-    });
-
+      });
 }
 
 
 // create a legend for map
 function worldMapLegend(year){
   var legend = d3.select("svg#legend" + year);
-  var step = 1;
   var legendW = 300;
   var legendH = 50;
 
@@ -193,7 +204,7 @@ function worldMapLegend(year){
     .domain([0, 250])
     .range([0, 8]);
   var bar_axis = d3.axisBottom(bar_scale)
-    .ticks(5, d3.format(".3n"));
+    .ticks(10, d3.format(".3n"));
 
   legend.append("g")
       .attr("transform","translate("+(10)+","+(45)+")")
@@ -203,13 +214,12 @@ function worldMapLegend(year){
   var color_scale = d3.scaleQuantile()
       .domain([0, 8])
       .range(["#c8ddf0","#4592c7","#1561a8","#08306b"]);
-
-  for (var i = 0; i<legendW-50; i += step) {
+  for (var i = 0; i<legendW-50; i += 1) {
       bar.append("rect")
         .attr("x", i)
         .attr("y", 0)
         .attr("height", 40)
-        .attr("width", step)
+        .attr("width", 1)
         .style("fill", color_scale(pixel_scale(i)));
     }
 }
