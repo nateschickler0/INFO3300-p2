@@ -213,6 +213,7 @@ function yearCSV(year,factor){
 			        	});
 			   	 	};
 				};
+
         var scoreArr = Object.values(country_rank).map(Number).filter(Number);
         var maxRank = Math.max.apply(null,scoreArr) + 1
 
@@ -300,24 +301,24 @@ function worldScatterPlot(year, scatter_data, factor){
   "D98E4D","FFCD2A","006347","AAD272","708C4C","48B9B6"]);
 
   // x-axis [gdp, life, family, trust, freedom]
-  var gdp_min = d3.min(scatter_data, d => d[factor]);
-  var gdp_max = d3.max(scatter_data, d => d[factor]);
-  var gdp_scale = d3.scaleLinear()
-          .domain([gdp_min+1, gdp_max+1])
+  var x_min = d3.min(scatter_data, d => d[factor]);
+  var x_max = d3.max(scatter_data, d => d[factor]);
+  var x_scale = d3.scaleLinear()
+          .domain([x_min + 1, x_max + 1])
           .range([0, scatterWidth]);
   // y-axis- happiness score
   var h_scale = d3.scaleLinear()
           .domain([0, 10])
           .range([scatterHeight, 0]);
 
-  var xAxis = d3.axisBottom(gdp_scale);
+  var xAxis = d3.axisBottom(x_scale);
     scatterSVG.append("g")
     .attr("transform","translate("+ margin.left +","+ (margin.top + scatterHeight +10) +")")
     .call(xAxis);
     scatterSVG.append("text")
     .attr("transform","translate(" + ((scatterWidth/2) + 50)  + " ," +(scatterHeight + margin.top + 50) + ")")
     .style("text-anchor", "middle")
-    .text(factor);
+    .text(factor + ' Factor');
 
   var yAxis = d3.axisLeft(h_scale);
     scatterSVG.append("g")
@@ -335,11 +336,11 @@ function worldScatterPlot(year, scatter_data, factor){
   scatter_data.forEach((d) => {
     var continent = continent_scale(d['Region']);
     var happiness = h_scale(d['happiness'])
-    var gdp = gdp_scale(d[factor]+1);
+    var x = x_scale(d[factor]+1);
     var plots = scatterPlot.append('circle')
       .attr("continent", d["Region"])
       .attr("country", d["Country"])
-      .attr('cx',gdp)
+      .attr('cx',x)
       .attr('cy',happiness)
       .attr("r",4)
       .style("fill", continent);
