@@ -154,10 +154,11 @@ function changeFactor(year, value){
       }
     }
     factor = value;
-    yearCSV(year,factor)
+    yearCSV(year,factor);
+    // (yearCSV(year)worldScatterPlot(year,scatter_data,factor);
 }
 
-function yearCSV(year,factor){
+function yearCSV(year, factor){
   d3.json("world-110m.json").then(function(world){
     d3.csv("data_worldHappiness/"+year+".csv").then(function(dataYear){
       d3.tsv("world-110m-country-names.tsv").then(function(countryID){
@@ -194,7 +195,7 @@ function yearCSV(year,factor){
             d['Trust'] = Number(d['Trust (Government Corruption)'])
           }
         });
-        var scatter_data = dataYear.filter( d => d['happiness'] != 0 && d['gdp'] != 0 && d['family'] != 0 && d['lifeExp'] != 0 && d['freedom'] != 0 && d['trust'] != 0 );
+        var scatter_data = dataYear.filter( d => d['happiness'] != 0 && d['GDP'] != 0 && d['Family'] != 0 && d['LifeExp'] != 0 && d['Freedom'] != 0 && d['Trust'] != 0 );
         // console.log(dataYear)
         // console.log(Object.keys(idToCountry).length);
         var tip;
