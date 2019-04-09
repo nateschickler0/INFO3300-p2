@@ -20,6 +20,9 @@
   .country{ fill: none;}
   .outline{stroke: white;stroke-width: 1px;fill: none;}
 	form {margin: 0;padding: 0;}
+  input.typeButton {border:1px solid #2166ac;padding: 10px;font-size: 18px;background-color: white;color: #2166ac;width: 130px;margin: 10px 15px 0 0;}
+	input.typeButton:hover {background-color: black;color: #fff;}
+	input.typeButtonOver {background-color: #4992c4;color: #fff;}
 	button.typeButton {border:1px solid #2166ac;padding: 10px;font-size: 18px;background-color: white;color: #2166ac;width: 130px;margin: 10px 15px 0 0;}
 	button.typeButton:hover {background-color: black;color: #fff;}
 	button.typeButtonOver {background-color: #4992c4;color: #fff;}
@@ -61,29 +64,70 @@
 <div id="2015_map">
   <svg class="happinessMap" id= "happinessMap2015" height = "600" width ="1000" ></svg>
   <svg class="legend" id= "legend2015"></svg>
+  <h2>WHAT AFFECTS HAPPINESS?</h2>
+  <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
+
+  <form>
+    <input type="button" class="typeButton" value="GDP" onclick="dosomething(this.value)">
+    <input type="button" class="typeButton" value="Life Exp." onclick="dosomething(this.value)">
+    <input type="button" class="typeButton" value="Family" onclick="dosomething(this.value)">
+    <input type="button" class="typeButton" value="Trust" onclick="dosomething(this.value)">
+    <input type="button" class="typeButton" value="Freedom" onclick="dosomething(this.value)">
+  </form>
+
+  <div>
+    <svg class="scatterplot" id="scatterplot2015" height="400" width="800"></svg>
+  </div>
 </div>
+
 <div id="2016_map">
   <svg class="happinessMap" id= "happinessMap2016" height = "600" width ="1000" ></svg>
   <svg class="legend" id= "legend2016"></svg>
+  <h2>WHAT AFFECTS HAPPINESS?</h2>
+  <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
+  <div>
+    <svg class="scatterplot" id="scatterplot2016" height="400" width="800"></svg>
+  </div>
 </div>
+
+
 <div id="2017_map">
   <svg class="happinessMap" id= "happinessMap2017" height = "600" width ="1000" ></svg>
   <svg class="legend" id= "legend2017"></svg>
+  <h2>WHAT AFFECTS HAPPINESS?</h2>
+  <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
+  <div>
+    <svg class="scatterplot" id="scatterplot2017" height="400" width="800"></svg>
+  </div>
 </div>
+
+<!-- <input type="button" value="mybutton1" onclick="dosomething(this.value)"> -->
+
 
 </body>
 
 <script>
+// function dosomething(val){
+//   console.log(val);
+// }
+
  // hover over each country to get the following data: country name, happiness rank out of 158,and happiness score #
 // TODO round decimals for happiness score 2017
-// TODO - 5 SCATTERPLOTS ???? FOR Happiness vs (GDP, family size, health, freedom, and govt trust)
+// TODO - SCATTERPLOTS ???? FOR Happiness vs (GDP,Freedom, family size, health, , and govt trust)
  // create a dropdown to select which variable to compare w happiness, color countries by its region
 
 var height = 600;
 var width = 1000;
-var margin = { top: 20, right: 20, bottom: 20, left:20};
+
+var scatterH = 400;
+var scatterW = 800;
+
+var margin = { top: 20, right: 20, bottom: 60, left:60};
 var mapHeight = height - margin.top - margin.bottom;
 var mapWidth = width - margin.left - margin.right;
+
+var scatterHeight = scatterH - margin.top - margin.bottom;
+var scatterWidth = scatterW - margin.left - margin.right;
 
 function yearCSV(year){
   d3.json("world-110m.json").then(function(world){
@@ -93,6 +137,29 @@ function yearCSV(year){
         var country_rank  = {}
         var idToCountry = {}
 
+        console.log(dataYear)
+        // scatterplot data
+        dataYear.forEach((d,i) =>{
+          if (year == '2017'){
+            d['happiness'] = Number(d['Happiness.Score']);
+            d['gdp'] = Number(d['Economy..GDP.per.Capita.']);
+            d['family'] = Number(d['Family']);
+            d['lifeExp'] = Number(d['Health..Life.Expectancy.']);
+            d['freedom'] = Number(d['Freedom']);
+            d['trust'] = Number(d['Trust..Government.Corruption.'])
+          }
+          else{
+            d['happiness']= Number(d['Happiness Score']);
+            d['gdp'] = Number(d['Economy (GDP per Capita)']);
+            d['family'] = Number(d['Family']);
+            d['lifeExp'] = Number(d['Health (Life Expectancy)']);
+            d['freedom'] = Number(d['Freedom']);
+            d['trust'] = Number(d['Trust (Government Corruption)'])
+          }
+        })
+
+        var scatter_data = dataYear.filter( d => d['happiness'] != 0 && d['gdp'] != 0 && d['family'] != 0 && d['lifeExp'] != 0 && d['freedom'] != 0 && d['trust'] != 0 );
+        // console.log('s',scatter_data)
         countryID.forEach(row => {
           country_object[row.name] = 0;
           country_rank[row.name] = 0;
@@ -111,7 +178,6 @@ function yearCSV(year){
         });
         // console.log(dataYear)
         // console.log(Object.keys(idToCountry).length);
-
         var tip;
 				d3.helper = {};
 				d3.helper.tip = function(text) {
@@ -129,23 +195,15 @@ function yearCSV(year){
 			   	 	};
 				};
 
-        // console.log('id',Object.keys(idToCountry).length)
-        // console.log('country',country_object)
-        // console.log('country',country_rank)
-        // console.log('rank length',Object.keys(country_rank).length)
-
-        // var arr = Object.keys( country_object ).map(function ( key ) { return parseInt(country_object[key]); });
-        // var min = Math.max.apply( 0, arr );
-        // console.log(min)
-        // console.log('happinessScore', Math.max.apply(Object.values(country_object).map(Number) ));
-        // var arr = Object.values(country_object);
         var scoreArr = Object.values(country_rank).map(Number).filter(Number);
         var maxRank = Math.max.apply(null,scoreArr) + 1
 
         worldMapSVG(year, world, country_object, country_rank, idToCountry, maxRank);
           // create legend for each year
         worldMapLegend(year);
-        // worldMapLegend(year, maxScore);
+        // create scatterplot
+        worldScatterPlot(year,scatter_data);
+
       });
     });
   });
@@ -190,13 +248,11 @@ function worldMapSVG(year, world, country_object, country_rank, idToCountry, max
       });
 }
 
-
 // create a legend for map
 function worldMapLegend(year){
   var legend = d3.select("svg#legend" + year);
   var legendW = 300;
   var legendH = 50;
-
   var bar_scale = d3.scaleLinear()
     .domain([0, 8])
     .range([0, 250]);
@@ -204,8 +260,7 @@ function worldMapLegend(year){
     .domain([0, 250])
     .range([0, 8]);
   var bar_axis = d3.axisBottom(bar_scale)
-    .ticks(10, d3.format(".3n"));
-
+    .ticks(10, d3.format(".2n"));
   legend.append("g")
       .attr("transform","translate("+(10)+","+(45)+")")
       .call(bar_axis);
@@ -214,7 +269,7 @@ function worldMapLegend(year){
   var color_scale = d3.scaleQuantile()
       .domain([0, 8])
       .range(["#c8ddf0","#4592c7","#1561a8","#08306b"]);
-  for (var i = 0; i<legendW-50; i += 1) {
+  for (i = 0; i<250; i += 1) {
       bar.append("rect")
         .attr("x", i)
         .attr("y", 0)
@@ -223,6 +278,82 @@ function worldMapLegend(year){
         .style("fill", color_scale(pixel_scale(i)));
     }
 }
+
+// CREATE SCATTERPLOTS
+function worldScatterPlot(year, scatter_data){
+  var scatterSVG = d3.select("svg#scatterplot" + year);
+  var continent_scale = d3.scaleOrdinal().range(["B865AB","CD0027","824F60","E75B57","E47A0A",
+  "D98E4D","FFCD2A","006347","AAD272","708C4C","48B9B6"]);
+  // x-axis [gdp, life, family, trust, freedom]
+  var gdp_min = d3.min(scatter_data, d => d['gdp']);
+  var gdp_max = d3.max(scatter_data, d => d['gdp']);
+  var gdp_scale = d3.scaleLinear()
+          .domain([gdp_min+1, gdp_max+1])
+          .range([0, scatterWidth]);
+  // y-axis- happiness score
+  var h_scale = d3.scaleLinear()
+          .domain([0, 10])
+          .range([scatterHeight, 0]);
+
+  var xAxis = d3.axisBottom(gdp_scale);
+    scatterSVG.append("g")
+    .attr("transform","translate("+ margin.left +","+ (margin.top + scatterHeight +10) +")")
+    .call(xAxis);
+    scatterSVG.append("text")
+    .attr("transform","translate(" + ((scatterWidth/2) + 50)  + " ," +(scatterHeight + margin.top + 50) + ")")
+    .style("text-anchor", "middle")
+    .text("Economy (GDP per Capita)");
+
+  var yAxis = d3.axisLeft(h_scale);
+    scatterSVG.append("g")
+    .attr("transform","translate("+ (margin.left-10) +","+ margin.top +")")
+    .call(yAxis);
+    scatterSVG.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0)
+    .attr("x",0 - (scatterHeight / 2))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Happiness Index (1-10)");
+  var scatterPlot = scatterSVG.append("g")
+    .attr("transform","translate("+margin.left+","+margin.top+")");
+  scatter_data.forEach((d) => {
+    var continent = continent_scale(d['Region']);
+    var happiness = h_scale(d['happiness'])
+    var gdp = gdp_scale(d['gdp']+1);
+    var plots = scatterPlot.append('circle')
+      .attr("continent", d["Region"])
+      .attr("country", d["Country"])
+      .attr('cx',gdp)
+      .attr('cy',happiness)
+      .attr("r",4)
+      .style("fill", continent);
+  });
+
+}
+
+
+// var life_min = d3.min(scatter_data, d => d['lifeExp']);
+// var life_max = d3.max(scatter_data, d => d['lifeExp']);
+// var life_scale = d3.scaleLog()
+//         .domain([life_min+1, life_max+1])
+//         .range([0, chartWidth]);
+// var family_min = d3.min(scatter_data, d => d['family']);
+// var family_max = d3.max(scatter_data, d => d['family']);
+// var family_scale = d3.scaleLog()
+//         .domain([family_min+1, family_max+1])
+//         .range([0, chartWidth]);
+// var trust_min = d3.min(scatter_data, d => d['trust']);
+// var trust_max = d3.max(scatter_data, d => d['trust']);
+// var trust_scale = d3.scaleLog()
+//         .domain([trust_min+1, trust_max+1])
+//         .range([0, chartWidth]);
+// var freedom_min = d3.min(scatter_data, d => d['freedom']);
+// var freedom_max = d3.max(scatter_data, d => d['freedom']);
+// var fredom_scale = d3.scaleLog()
+//         .domain([freedom_min+1, freedom_max+1])
+//         .range([0, chartWidth]);
+
 
 // button-display year
 document.getElementById("2016_map").style.display = "none";
