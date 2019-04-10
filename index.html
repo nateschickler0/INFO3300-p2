@@ -132,7 +132,11 @@
     .regression {
         stroke-width: 5px;
         stroke: darkred;
-        opacity: 0.5;
+    }
+
+    span {
+        margin: 10px;
+        font-size: large;
     }
 </style>
 
@@ -181,6 +185,7 @@
         <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2015, this.value)">
         <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2015, this.value)">
     </form>
+    <div id="continents2015"></div>
     <div>
         <svg class="scatterplot" id="scatterplot2015GDP" height="400" width="800"></svg>
         <svg class="scatterplot" id="scatterplot2015Family" height="400" width="800"></svg>
@@ -202,6 +207,7 @@
         <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2016, this.value)">
         <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2016, this.value)">
     </form>
+    <div id="continents2016"></div>
     <div>
         <svg class="scatterplot" id="scatterplot2016GDP" height="400" width="800"></svg>
         <svg class="scatterplot" id="scatterplot2016Family" height="400" width="800"></svg>
@@ -223,6 +229,7 @@
         <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2017, this.value)">
         <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2017, this.value)">
     </form>
+    <div id="continents2017"></div>
     <div>
         <svg class="scatterplot" id="scatterplot2017GDP" height="400" width="800"></svg>
         <svg class="scatterplot" id="scatterplot2017Family" height="400" width="800"></svg>
@@ -253,7 +260,7 @@
     let factor = 'GDP';
 
     function changeFactor(year, value) {
-        factors = ['GDP', 'LifeExp', 'Family', 'Trust', 'Freedom'];
+        const factors = ['GDP', 'LifeExp', 'Family', 'Trust', 'Freedom'];
         for (i in factors) {
             if (factors[i] === value) {
                 document.getElementById("scatterplot" + year + factors[i]).style.display = "block";
@@ -320,7 +327,8 @@
                                 d3.select("body").selectAll(".tip").remove();
                                 const position = d3.mouse(textBox);
                                 tip = d3.select("body").append("div").attr("class", "tip");
-                                tip.style("left", position[0]).style("top", position[1]).html(text(d, i));
+                                const tipH = parseFloat(tip.style("height"));
+                                tip.style("left", position[0]).style("top", position[1] + tipH).html(text(d, i));
                             })
                                 .on("mouseout", function (d, i) {
                                     tip.remove();
@@ -368,7 +376,7 @@
             .range(["#c8ddf0", "#4592c7", "#1561a8", "#08306b"]);
         map.selectAll(".country")
             .call(d3.helper.tip(function (d) {
-                if (country_rank[idToCountry[d.id]] == 0) {
+                if (country_rank[idToCountry[d.id]] === 0) {
                     return "<b>Country: " + idToCountry[d.id] + "</b><br> <b>Score: " + country_object[idToCountry[d.id]] + "</b><br> <b>Rank: " + maxRank + "</b>";
                 }
                 return "<b>Country: " + idToCountry[d.id] + "</b><br> <b>Score: " + country_object[idToCountry[d.id]] + "</b><br> <b>Rank: " + country_rank[idToCountry[d.id]] + "</b>";
@@ -410,20 +418,22 @@
     }
 
     // CREATE REGRESSION
-    function regressionLine(d, xFactor, yFactor, minX, maxX,) {
-        const n = d.length;
-
+    function regressionLine(d, xFactor, yFactor, minX, maxX, region = null) {
+        let n = 0;
         let sum = 0;
         let xSum = 0;
         let ySum = 0;
         let sumSq = 0;
-        console.log(d, xFactor, yFactor);
+        // console.log(d, xFactor, yFactor);
 
         d.forEach((p) => {
-            sum += p[xFactor] * p[yFactor];
-            xSum += p[xFactor];
-            ySum += p[yFactor];
-            sumSq += p[xFactor] * p[xFactor];
+            if (!region || region === p['Region']) {
+                n++;
+                sum += p[xFactor] * p[yFactor];
+                xSum += p[xFactor];
+                ySum += p[yFactor];
+                sumSq += p[xFactor] * p[xFactor];
+            }
         });
 
         const a = sum * n;
@@ -434,7 +444,6 @@
         const slope = (a - b) / (c - s);
 
         const e = ySum;
-
         const f = slope * xSum;
 
         const intercept = (e - f) / n;
@@ -453,7 +462,7 @@
     }
 
     // CREATE SCATTERPLOTS
-    function worldScatterPlot(year, scatter_data, factor) {
+    function worldScatterPlot(year, scatter_data, factor, continentSelected) {
         const scatterSVG = d3.select("svg#scatterplot" + year + factor);
         const continent_scale = d3.scaleOrdinal().range(["B865AB", "CD0027", "824F60", "E75B57", "E47A0A",
             "D98E4D", "FFCD2A", "006347", "AAD272", "708C4C", "48B9B6"]);
@@ -495,32 +504,110 @@
             .text("Happiness Index (1-10)");
         const scatterPlot = scatterSVG.append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        const regions = {};
+
         scatter_data.forEach((d) => {
             const continent = continent_scale(d['Region']);
-            const happiness = h_scale(d['happiness']);
-            const x = x_scale(d[factor]);
+            regions[d['Region']] = continent;
+            if (!continentSelected || d['Region'] === continentSelected) {
+                const happiness = h_scale(d['happiness']);
+                const x = x_scale(d[factor]);
 
-            const plots = scatterPlot.append('circle')
-                .attr("continent", d["Region"])
-                .attr("country", d["Country"])
-                .attr('cx', x)
-                .attr('cy', happiness)
-                .attr("r", 4)
-                .style("fill", continent);
+                const plots = scatterPlot.append('circle')
+                    .attr("region", d["Region"])
+                    .attr("country", d["Country"])
+                    .attr('cx', x)
+                    .attr('cy', happiness)
+                    .attr("r", 4)
+                    .style("fill", continent);
+
+                plots.on('mouseover', () => {
+                    plots
+                        .transition().duration(200)
+                        .attr("r",d['happiness'] * 2)
+                        .style("stroke","#000");
+
+                    // Add a label
+                    scatterSVG.append("text")
+                        .attr("id", d['Country'].replace(/[ _\-,.:'#!\?]/g,""))  // We need to be able to find this to remove it later, so lets store an ID
+                        .attr("x", x )
+                        .attr("y", happiness - 15 )
+                        .text(d['Country'] + ' (' + d['Region'] + ')');
+                });
+
+                plots.on("mouseout", () => {
+                    plots
+                        .transition().duration(200)
+                        .attr("r",4)
+                        .style("stroke","none");
+                    // Grab label by element ID
+                    d3.select("#" + d['Country'].replace(/[ _\-,.:'#!\?]/g,"")).remove();
+                });
+
+            }
         });
 
-        const regression = regressionLine(scatter_data, factor, 'happiness', x_min, x_max);
+        console.log(regions);
 
-        console.log(regression);
-        console.log(factor, 'xmin', x_min, 'xmax', x_max, 'ymin',y_min,'ymax',y_max);
+        const regression = regressionLine(scatter_data, factor, 'happiness', x_min, x_max, null);
+
+        // console.log(regression);
+        // console.log(factor, 'xmin', x_min, 'xmax', x_max, 'ymin',y_min,'ymax',y_max);
 
         scatterPlot.append('line')
             .attr('class', 'regression')
-            // .attr("transform", "translate(" + (scatterWidth/2 + margin.left) + "," + (0) + ")")
             .attr('x1', x_scale(regression.p1.x))
             .attr('y1', h_scale(regression.p1.y))
             .attr('x2', x_scale(regression.p2.x))
-            .attr('y2', h_scale(regression.p2.y));
+            .attr('y2', h_scale(regression.p2.y))
+            .attr('opacity', 0.5);
+
+        d3.select('#continents'+year).selectAll("*").remove();
+
+        for (const entry in regions) {
+            if (!regions.hasOwnProperty(entry)) continue;
+            const region = entry;
+            const color = regions[region];
+            d3.select('#continents'+year)
+                .append('span').text(region)
+                .style('color', color)
+                .on('mouseover', function () {
+                    scatterPlot.selectAll('circle').each(function () {
+                        let circle = d3.select(this);
+                        if (circle.attr('region') === region) {
+                            circle.attr('opacity', 1.0);
+                        }
+                        else {
+                            circle.attr('opacity', 0.1);
+                        }
+                    });
+
+                    scatterPlot.selectAll('line').attr('opacity', 0.2);
+
+                    const subsetRegression = regressionLine(scatter_data, factor, 'happiness', x_min, x_max, region);
+                    scatterPlot.append('line')
+                        .attr('class', 'regression')
+                        .attr('x1', x_scale(subsetRegression.p1.x))
+                        .attr('y1', h_scale(subsetRegression.p1.y))
+                        .attr('x2', x_scale(subsetRegression.p2.x))
+                        .attr('y2', h_scale(subsetRegression.p2.y))
+                        .attr('opacity', 0.5);
+                });
+        }
+
+        d3.select('#continents'+year).on('mouseout', function () {
+            scatterPlot.selectAll('circle').attr('opacity', 0.8);
+            scatterPlot.selectAll('line').remove();
+
+            scatterPlot.append('line')
+                .attr('class', 'regression')
+                .attr('x1', x_scale(regression.p1.x))
+                .attr('y1', h_scale(regression.p1.y))
+                .attr('x2', x_scale(regression.p2.x))
+                .attr('y2', h_scale(regression.p2.y))
+                .attr('opacity', 0.5);
+        });
 
     }
 
