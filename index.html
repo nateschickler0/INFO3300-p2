@@ -1,383 +1,558 @@
 <html>
 <head>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.14.2/highlight.min.js"></script>
-  <script src="https://d3js.org/d3.v5.min.js"></script>
-  <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.14.2/highlight.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
 
-  <link type="text/css" rel="stylesheet" href="https://fast.fonts.net/cssapi/c1ece602-4b8f-4767-a71f-aa828be38869.css"/>
-  <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link type="text/css" rel="stylesheet"
+          href="https://fast.fonts.net/cssapi/c1ece602-4b8f-4767-a71f-aa828be38869.css"/>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 </head>
 <!-- style inspiration from https://mimno.github.io/showcase/project2/workforce/ -->
 <style>
-  body { font-family: "LinotypeUniversW01-Ligh_723625"; font-size: 17px; line-height: 22px; margin: 40px 50px 50px 50px; }
-  h1 { font-family: "LinotypeUniversW01-Cn"; color: #000; font-size: 3em; line-height: 1.2em; margin: 0 0 5px 0; }
-	h2 { font-family: "LinotypeUniversW01-Medi_723673"; margin: 0; color: #2166ac; font-size: 1.3em; line-height: 1.1em; }
-	h3 { margin: 0 0 45px 0;font-size: 2em; color: #686868; }
-	h4 { margin: 0;  font-size: 1.1em;  font-family: "LinotypeUniversW01-Cn"; }
-	p { font-size: 1em;  line-height: 1.4em; }
-  .note { font-size: 15px; padding-top: 5; color: #2166ac}
-  div.instructions { font-family: "LinotypeUniversW01-Cn"; color: #2166ac; }
-  .country{ fill: none;}
-  .outline{stroke: white;stroke-width: 1px;fill: none;}
-	form {margin: 0;padding: 0;}
-  input.typeButton {border:1px solid #2166ac;padding: 10px;font-size: 18px;background-color: white;color: #2166ac;width: 130px;margin: 10px 15px 0 0;}
-	input.typeButton:hover {background-color: black;color: #fff;}
-	input.typeButtonOver {background-color: #4992c4;color: #fff;}
-	button.typeButton {border:1px solid #2166ac;padding: 10px;font-size: 18px;background-color: white;color: #2166ac;width: 130px;margin: 10px 15px 0 0;}
-	button.typeButton:hover {background-color: black;color: #fff;}
-	button.typeButtonOver {background-color: #4992c4;color: #fff;}
-  .tip{ pointer-events: none; position: absolute; background-color:white; opacity: 0.8; height: 70px; width: 150px; padding:3px; text-align:left; z-index: 9999; font-size: 12px;}
+    body {
+        font-family: "LinotypeUniversW01-Ligh_723625";
+        font-size: 17px;
+        line-height: 22px;
+        margin: 40px 50px 50px 50px;
+    }
+
+    h1 {
+        font-family: "LinotypeUniversW01-Cn";
+        color: #000;
+        font-size: 3em;
+        line-height: 1.2em;
+        margin: 0 0 5px 0;
+    }
+
+    h2 {
+        font-family: "LinotypeUniversW01-Medi_723673";
+        margin: 0;
+        color: #2166ac;
+        font-size: 1.3em;
+        line-height: 1.1em;
+    }
+
+    h3 {
+        margin: 0 0 45px 0;
+        font-size: 2em;
+        color: #686868;
+    }
+
+    h4 {
+        margin: 0;
+        font-size: 1.1em;
+        font-family: "LinotypeUniversW01-Cn";
+    }
+
+    p {
+        font-size: 1em;
+        line-height: 1.4em;
+    }
+
+    .note {
+        font-size: 15px;
+        padding-top: 5;
+        color: #2166ac
+    }
+
+    div.instructions {
+        font-family: "LinotypeUniversW01-Cn";
+        color: #2166ac;
+    }
+
+    .country {
+        fill: none;
+    }
+
+    .outline {
+        stroke: white;
+        stroke-width: 1px;
+        fill: none;
+    }
+
+    form {
+        margin: 0;
+        padding: 0;
+    }
+
+    input.typeButton {
+        border: 1px solid #2166ac;
+        padding: 10px;
+        font-size: 18px;
+        background-color: white;
+        color: #2166ac;
+        width: 130px;
+        margin: 10px 15px 0 0;
+    }
+
+    input.typeButton:hover {
+        background-color: black;
+        color: #fff;
+    }
+
+    input.typeButtonOver {
+        background-color: #4992c4;
+        color: #fff;
+    }
+
+    button.typeButton {
+        border: 1px solid #2166ac;
+        padding: 10px;
+        font-size: 18px;
+        background-color: white;
+        color: #2166ac;
+        width: 130px;
+        margin: 10px 15px 0 0;
+    }
+
+    button.typeButton:hover {
+        background-color: black;
+        color: #fff;
+    }
+
+    button.typeButtonOver {
+        background-color: #4992c4;
+        color: #fff;
+    }
+
+    .tip {
+        pointer-events: none;
+        position: absolute;
+        background-color: white;
+        opacity: 0.8;
+        height: 70px;
+        width: 150px;
+        padding: 3px;
+        text-align: left;
+        z-index: 9999;
+        font-size: 12px;
+    }
+
+    .regression {
+        stroke-width: 5px;
+        stroke: darkred;
+        opacity: 0.5;
+    }
 </style>
 
 <body>
-  <h1>World Happiness Visualization</h1>
-  <h3>INFO 3300: Project 2</h3>
-  <h4>Aileen Cai (ac952), Nate Schickler (njs59)</h4>
-  <p>The World Happiness Report is a landmark survey of the state of global happiness.
+<h1>World Happiness Visualization</h1>
+<h3>INFO 3300: Project 2</h3>
+<h4>Aileen Cai (ac952), Nate Schickler (njs59)</h4>
+<p>The World Happiness Report is a landmark survey of the state of global happiness.
     The first report was published in 2012, the second in 2013, the third in 2015,
-     and the fourth in the 2016 Update. The World Happiness 2017, which ranks 158
-     countries by their happiness levels, was released at the United Nations at an
-     event celebrating International Day of Happiness on March 20th. The report continues
-     to gain global recognition as governments, organizations and civil society
-     increasingly use happiness indicators to inform their policy-making decisions.
-      Leading experts across fields – economics, psychology, survey analysis, national
-      statistics, health, public policy and more – describe how measurements of
-      well-being can be used effectively to assess the progress of nations. The reports
-      review the state of happiness in the world today and show how the new science of
-      happiness explains personal and national variations in happiness.</p>
-  <p>Happiness ScoreA metric measured in 2015-2017 by asking the
+    and the fourth in the 2016 Update. The World Happiness 2017, which ranks 158
+    countries by their happiness levels, was released at the United Nations at an
+    event celebrating International Day of Happiness on March 20th. The report continues
+    to gain global recognition as governments, organizations and civil society
+    increasingly use happiness indicators to inform their policy-making decisions.
+    Leading experts across fields - economics, psychology, survey analysis, national
+    statistics, health, public policy and more - describe how measurements of
+    well-being can be used effectively to assess the progress of nations. The reports
+    review the state of happiness in the world today and show how the new science of
+    happiness explains personal and national variations in happiness.</p>
+<p>Happiness ScoreA metric measured in 2015-2017 by asking the
     sampled people the question: "How would you rate your happiness
     on a scale of 0 to 10 where 10 is the happiest."</p>
-  <p>Data and context is taken from <a href="https://www.kaggle.com/unsdsn/world-happiness/version/2?login=true">Kaggle.</a>
-  Design inspiration from https://mimno.github.io/showcase/project2/workforce/ </p></br>
+<p>Data and context is taken from <a
+        href="https://www.kaggle.com/unsdsn/world-happiness/version/2?login=true">Kaggle.</a>
+    Design inspiration from https://mimno.github.io/showcase/project2/workforce/ </p></br>
 
 <!-- buttons to select year -->
 <h2>SELECT YEAR</h2>
 <div class="instructions"> Click a button below to view the choropleth map for each year.</div>
 <form>
-  <button id="2015" type="button" class="typeButton typeButtonOver">2015</button>
-  <button id="2016" type="button" class="typeButton">2016</button>
-  <button id="2017" type="button" class="typeButton">2017</button>
+    <button id="2015" type="button" class="typeButton typeButtonOver">2015</button>
+    <button id="2016" type="button" class="typeButton">2016</button>
+    <button id="2017" type="button" class="typeButton">2017</button>
 </form>
 <p class="note">*Hover over each country to see the happiness score and rank (out of 159) </p>
 <!-- map of countries -->
 <div id="2015_map">
-  <svg class="happinessMap" id= "happinessMap2015" height = "600" width ="1000" ></svg>
-  <svg class="legend" id= "legend2015"></svg>
-  <h2>WHAT AFFECTS HAPPINESS?</h2>
-  <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
-  <form>
-    <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2015, this.value)">
-    <input type="button" class="typeButton" value="Family" onclick="changeFactor(2015, this.value)">
-    <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2015, this.value)">
-    <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2015, this.value)">
-    <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2015, this.value)">
-  </form>
-  <div>
-    <svg class="scatterplot" id="scatterplot2015GDP" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2015Family" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2015LifeExp" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2015Trust" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2015Freedom" height="400" width="800"></svg>
-  </div>
+    <svg class="happinessMap" id="happinessMap2015" height="600" width="1000"></svg>
+    <svg class="legend" id="legend2015"></svg>
+    <h2>WHAT AFFECTS HAPPINESS?</h2>
+    <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
+    <form>
+        <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2015, this.value)">
+        <input type="button" class="typeButton" value="Family" onclick="changeFactor(2015, this.value)">
+        <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2015, this.value)">
+        <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2015, this.value)">
+        <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2015, this.value)">
+    </form>
+    <div>
+        <svg class="scatterplot" id="scatterplot2015GDP" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2015Family" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2015LifeExp" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2015Trust" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2015Freedom" height="400" width="800"></svg>
+    </div>
 </div>
 
 <div id="2016_map">
-  <svg class="happinessMap" id= "happinessMap2016" height = "600" width ="1000" ></svg>
-  <svg class="legend" id= "legend2016"></svg>
-  <h2>WHAT AFFECTS HAPPINESS?</h2>
-  <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
-  <form>
-    <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2016, this.value)">
-    <input type="button" class="typeButton" value="Family" onclick="changeFactor(2016, this.value)">
-    <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2016, this.value)">
-    <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2016, this.value)">
-    <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2016, this.value)">
-  </form>
-  <div>
-    <svg class="scatterplot" id="scatterplot2016GDP" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2016Family" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2016LifeExp" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2016Trust" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2016Freedom" height="400" width="800"></svg>
-  </div>
+    <svg class="happinessMap" id="happinessMap2016" height="600" width="1000"></svg>
+    <svg class="legend" id="legend2016"></svg>
+    <h2>WHAT AFFECTS HAPPINESS?</h2>
+    <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
+    <form>
+        <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2016, this.value)">
+        <input type="button" class="typeButton" value="Family" onclick="changeFactor(2016, this.value)">
+        <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2016, this.value)">
+        <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2016, this.value)">
+        <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2016, this.value)">
+    </form>
+    <div>
+        <svg class="scatterplot" id="scatterplot2016GDP" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2016Family" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2016LifeExp" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2016Trust" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2016Freedom" height="400" width="800"></svg>
+    </div>
 </div>
 
 <div id="2017_map">
-  <svg class="happinessMap" id= "happinessMap2017" height = "600" width ="1000" ></svg>
-  <svg class="legend" id= "legend2017"></svg>
-  <h2>WHAT AFFECTS HAPPINESS?</h2>
-  <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
-  <form>
-    <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2017, this.value)">
-    <input type="button" class="typeButton" value="Family" onclick="changeFactor(2017, this.value)">
-    <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2017, this.value)">
-    <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2017, this.value)">
-    <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2017, this.value)">
-  </form>
-  <div>
-    <svg class="scatterplot" id="scatterplot2017GDP" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2017Family" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2017LifeExp" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2017Trust" height="400" width="800"></svg>
-    <svg class="scatterplot" id="scatterplot2017Freedom" height="400" width="800"></svg>
-  </div>
+    <svg class="happinessMap" id="happinessMap2017" height="600" width="1000"></svg>
+    <svg class="legend" id="legend2017"></svg>
+    <h2>WHAT AFFECTS HAPPINESS?</h2>
+    <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
+    <form>
+        <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2017, this.value)">
+        <input type="button" class="typeButton" value="Family" onclick="changeFactor(2017, this.value)">
+        <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2017, this.value)">
+        <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2017, this.value)">
+        <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2017, this.value)">
+    </form>
+    <div>
+        <svg class="scatterplot" id="scatterplot2017GDP" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2017Family" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2017LifeExp" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2017Trust" height="400" width="800"></svg>
+        <svg class="scatterplot" id="scatterplot2017Freedom" height="400" width="800"></svg>
+    </div>
 </div>
 </body>
 
 <script>
-// TODO round decimals for happiness score 2017
+    // TODO round decimals for happiness score 2017
 
-var height = 600;
-var width = 1000;
+    const height = 600;
+    const width = 1000;
 
-var scatterH = 400;
-var scatterW = 800;
+    const scatterH = 400;
+    const scatterW = 800;
 
-var margin = { top: 20, right: 20, bottom: 60, left:60};
-var mapHeight = height - margin.top - margin.bottom;
-var mapWidth = width - margin.left - margin.right;
+    const margin = {top: 20, right: 20, bottom: 60, left: 60};
+    const mapHeight = height - margin.top - margin.bottom;
+    const mapWidth = width - margin.left - margin.right;
 
-var scatterHeight = scatterH - margin.top - margin.bottom;
-var scatterWidth = scatterW - margin.left - margin.right;
+    const scatterHeight = scatterH - margin.top - margin.bottom;
+    const scatterWidth = scatterW - margin.left - margin.right;
 
-// change value of factor
-var factor = 'GDP'
-function changeFactor(year, value){
-  factors = ['GDP', 'LifeExp', 'Family','Trust','Freedom']
-    for (i in factors){
-      if(factors[i] == value){
-        document.getElementById("scatterplot"+year+factors[i]).style.display = "block";
-      }
-      else{
-        document.getElementById("scatterplot"+year+factors[i]).style.display = "none";
-      }
-    }
-    factor = value;
-    yearCSV(year,factor);
-    // (yearCSV(year)worldScatterPlot(year,scatter_data,factor);
-}
+    // change value of factor
+    let factor = 'GDP';
 
-function yearCSV(year, factor){
-  d3.json("world-110m.json").then(function(world){
-    d3.csv("data_worldHappiness/"+year+".csv").then(function(dataYear){
-      d3.tsv("world-110m-country-names.tsv").then(function(countryID){
-        var country_object = {}
-        var country_rank  = {}
-        var idToCountry = {}
-
-        countryID.forEach(row => {
-          country_object[row.name] = 0;
-          country_rank[row.name] = 0;
-          idToCountry[row.id] = row.name;
-        });
-
-        // scatterplot data
-        dataYear.forEach((d,i) =>{
-          if (year == '2017'){
-            country_object[d.Country] += d['Happiness.Score'];
-            country_rank[d.Country] = d['Happiness.Rank'];
-            d['happiness'] = Number(d['Happiness.Score']);
-            d['GDP'] = Number(d['Economy..GDP.per.Capita.']);
-            d['Family'] = Number(d['Family']);
-            d['LifeExp'] = Number(d['Health..Life.Expectancy.']);
-            d['Freedom'] = Number(d['Freedom']);
-            d['Trust'] = Number(d['Trust..Government.Corruption.'])
-          }
-          else{
-            country_object[d.Country] += d['Happiness Score'];
-            country_rank[d.Country] = d['Happiness Rank'];
-            d['happiness']= Number(d['Happiness Score']);
-            d['GDP'] = Number(d['Economy (GDP per Capita)']);
-            d['Family'] = Number(d['Family']);
-            d['LifeExp'] = Number(d['Health (Life Expectancy)']);
-            d['Freedom'] = Number(d['Freedom']);
-            d['Trust'] = Number(d['Trust (Government Corruption)'])
-          }
-        });
-        var scatter_data = dataYear.filter( d => d['happiness'] != 0 && d['GDP'] != 0 && d['Family'] != 0 && d['LifeExp'] != 0 && d['Freedom'] != 0 && d['Trust'] != 0 );
-        // console.log(dataYear)
-        // console.log(Object.keys(idToCountry).length);
-        var tip;
-				d3.helper = {};
-				d3.helper.tip = function(text) {
-			    return function(selectedCountry){
-			        var textBox = d3.select("body").node();
-			        selectedCountry.on("mouseover", function(d, i){
-			            d3.select("body").selectAll(".tip").remove();
-			            var position = d3.mouse(textBox);
-			           	tip = d3.select("body").append("div").attr("class", "tip");
-			            tip.style("left", position[0]).style("top", position[1]).html(text(d, i));
-			        	})
-			        .on("mouseout", function(d, i){
-			            tip.remove();
-			        	});
-			   	 	};
-				};
-
-        var scoreArr = Object.values(country_rank).map(Number).filter(Number);
-        var maxRank = Math.max.apply(null,scoreArr) + 1
-
-        worldMapSVG(year, world, country_object, country_rank, idToCountry, maxRank);
-          // create legend for each year
-        worldMapLegend(year);
-        // create scatterplot
-        worldScatterPlot(year,scatter_data,factor);
-      });
-    });
-  });
-}
-yearCSV("2015",factor)
-yearCSV("2016",factor)
-yearCSV("2017",factor)
-
-// make world map svg and color
-function worldMapSVG(year, world, country_object, country_rank, idToCountry, maxRank){
-  var countries = topojson.feature(world, world.objects.countries);
-  var countriesMesh = topojson.mesh(world, world.objects.countries);
-  var projection = d3.geoEqualEarth().fitSize([mapWidth, mapHeight],countries);
-  var path = d3.geoPath().projection(projection);
-  var svg = d3.select("svg#happinessMap" + year);
-  var map = svg.append("g")
-                  .attr("transform","translate("+(-140)+","+margin.top+")");
-  map.selectAll("path").data(countries.features)
-    .enter()
-    .append("path")
-    .attr("class","country")
-    .attr("d",path);
-  map.append("path")
-    .datum(countriesMesh)
-    .attr("class","outline")
-    .attr("d",path);
-    var colorScale = d3.scaleQuantile()
-        .domain(d3.values(country_object))
-        .range(["#c8ddf0","#4592c7","#1561a8","#08306b"]);
-    map.selectAll(".country")
-      .call(d3.helper.tip(function(d){
-        if (country_rank[idToCountry[d.id]] == 0){
-          return "<b>Country: " + idToCountry[d.id]+"</b><br> <b>Score: " + country_object[idToCountry[d.id]]+"</b><br> <b>Rank: " + maxRank +"</b>";
+    function changeFactor(year, value) {
+        factors = ['GDP', 'LifeExp', 'Family', 'Trust', 'Freedom'];
+        for (i in factors) {
+            if (factors[i] === value) {
+                document.getElementById("scatterplot" + year + factors[i]).style.display = "block";
+            } else {
+                document.getElementById("scatterplot" + year + factors[i]).style.display = "none";
+            }
         }
-        return "<b>Country: " + idToCountry[d.id]+"</b><br> <b>Score: " + country_object[idToCountry[d.id]]+"</b><br> <b>Rank: " + country_rank[idToCountry[d.id]]+"</b>";
-       }))
-      .style('fill', function(d){
-         return colorScale(country_object[idToCountry[d.id]]);
-      });
-}
-
-// create a legend for map
-function worldMapLegend(year){
-  var legend = d3.select("svg#legend" + year);
-  var legendW = 300;
-  var legendH = 50;
-  var bar_scale = d3.scaleLinear()
-    .domain([0, 8])
-    .range([0, 250]);
-  var pixel_scale = d3.scaleLinear()
-    .domain([0, 250])
-    .range([0, 8]);
-  var bar_axis = d3.axisBottom(bar_scale)
-    .ticks(10, d3.format(".2n"));
-  legend.append("g")
-      .attr("transform","translate("+(10)+","+(45)+")")
-      .call(bar_axis);
-  var bar = legend.append("g")
-      .attr("transform", "translate("+(10)+","+(0)+")");
-  var color_scale = d3.scaleQuantile()
-      .domain([0, 8])
-      .range(["#c8ddf0","#4592c7","#1561a8","#08306b"]);
-  for (i = 0; i<250; i += 1) {
-      bar.append("rect")
-        .attr("x", i)
-        .attr("y", 0)
-        .attr("height", 40)
-        .attr("width", 1)
-        .style("fill", color_scale(pixel_scale(i)));
+        factor = value;
+        yearCSV(year, factor);
+        // (yearCSV(year)worldScatterPlot(year,scatter_data,factor);
     }
-}
 
-// CREATE SCATTERPLOTS
-function worldScatterPlot(year, scatter_data, factor){
-  var scatterSVG = d3.select("svg#scatterplot" + year + factor);
-  var continent_scale = d3.scaleOrdinal().range(["B865AB","CD0027","824F60","E75B57","E47A0A",
-  "D98E4D","FFCD2A","006347","AAD272","708C4C","48B9B6"]);
+    function yearCSV(year, factor) {
+        d3.json("world-110m.json").then(function (world) {
+            d3.csv("data_worldHappiness/" + year + ".csv").then(function (dataYear) {
+                d3.tsv("world-110m-country-names.tsv").then(function (countryID) {
+                    const country_object = {};
+                    const country_rank = {};
+                    const idToCountry = {};
 
-  // x-axis [gdp, life, family, trust, freedom]
-  var x_min = d3.min(scatter_data, d => d[factor]);
-  var x_max = d3.max(scatter_data, d => d[factor]);
-  var x_scale = d3.scaleLinear()
-          .domain([x_min + 1, x_max + 1])
-          .range([0, scatterWidth]);
-  // y-axis- happiness score
-  var h_scale = d3.scaleLinear()
-          .domain([0, 10])
-          .range([scatterHeight, 0]);
+                    countryID.forEach(row => {
+                        country_object[row.name] = 0;
+                        country_rank[row.name] = 0;
+                        idToCountry[row.id] = row.name;
+                    });
 
-  var xAxis = d3.axisBottom(x_scale);
-    scatterSVG.append("g")
-    .attr("transform","translate("+ margin.left +","+ (margin.top + scatterHeight +10) +")")
-    .call(xAxis);
-    scatterSVG.append("text")
-    .attr("transform","translate(" + ((scatterWidth/2) + 50)  + " ," +(scatterHeight + margin.top + 50) + ")")
-    .style("text-anchor", "middle")
-    .text(factor + ' Factor');
+                    // scatterplot data
+                    dataYear.forEach((d, i) => {
+                        if (year === '2017') {
+                            country_object[d.Country] += d['Happiness.Score'];
+                            country_rank[d.Country] = d['Happiness.Rank'];
+                            d['happiness'] = Number(d['Happiness.Score']);
+                            d['GDP'] = Number(d['Economy..GDP.per.Capita.']);
+                            d['Family'] = Number(d['Family']);
+                            d['LifeExp'] = Number(d['Health..Life.Expectancy.']);
+                            d['Freedom'] = Number(d['Freedom']);
+                            d['Trust'] = Number(d['Trust..Government.Corruption.'])
+                        } else {
+                            country_object[d.Country] += d['Happiness Score'];
+                            country_rank[d.Country] = d['Happiness Rank'];
+                            d['happiness'] = Number(d['Happiness Score']);
+                            d['GDP'] = Number(d['Economy (GDP per Capita)']);
+                            d['Family'] = Number(d['Family']);
+                            d['LifeExp'] = Number(d['Health (Life Expectancy)']);
+                            d['Freedom'] = Number(d['Freedom']);
+                            d['Trust'] = Number(d['Trust (Government Corruption)'])
+                        }
+                    });
+                    const scatter_data = dataYear.filter(d =>
+                        d['happiness'] !== 0
+                        && d['GDP'] !== 0
+                        && d['Family'] !== 0
+                        && d['LifeExp'] !== 0
+                        && d['Freedom'] !== 0
+                        && d['Trust'] !== 0);
+                    // console.log(dataYear)
+                    // console.log(Object.keys(idToCountry).length);
+                    let tip;
+                    d3.helper = {};
+                    d3.helper.tip = function (text) {
+                        return function (selectedCountry) {
+                            const textBox = d3.select("body").node();
+                            selectedCountry.on("mouseover", function (d, i) {
+                                d3.select("body").selectAll(".tip").remove();
+                                const position = d3.mouse(textBox);
+                                tip = d3.select("body").append("div").attr("class", "tip");
+                                tip.style("left", position[0]).style("top", position[1]).html(text(d, i));
+                            })
+                                .on("mouseout", function (d, i) {
+                                    tip.remove();
+                                });
+                        };
+                    };
 
-  var yAxis = d3.axisLeft(h_scale);
-    scatterSVG.append("g")
-    .attr("transform","translate("+ (margin.left-10) +","+ margin.top +")")
-    .call(yAxis);
-    scatterSVG.append("text")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 0)
-    .attr("x",0 - (scatterHeight / 2))
-    .attr("dy", "1em")
-    .style("text-anchor", "middle")
-    .text("Happiness Index (1-10)");
-  var scatterPlot = scatterSVG.append("g")
-    .attr("transform","translate("+margin.left+","+margin.top+")");
-  scatter_data.forEach((d) => {
-    var continent = continent_scale(d['Region']);
-    var happiness = h_scale(d['happiness'])
-    var x = x_scale(d[factor]+1);
-    var plots = scatterPlot.append('circle')
-      .attr("continent", d["Region"])
-      .attr("country", d["Country"])
-      .attr('cx',x)
-      .attr('cy',happiness)
-      .attr("r",4)
-      .style("fill", continent);
-  });
+                    const scoreArr = Object.values(country_rank).map(Number).filter(Number);
+                    const maxRank = Math.max.apply(null, scoreArr) + 1;
 
-}
+                    worldMapSVG(year, world, country_object, country_rank, idToCountry, maxRank);
+                    // create legend for each year
+                    worldMapLegend(year);
+                    // create scatterplot
+                    worldScatterPlot(year, scatter_data, factor);
+                });
+            });
+        });
+    }
 
-// button-display year
-document.getElementById("2016_map").style.display = "none";
-document.getElementById("2017_map").style.display = "none";
-document.getElementById("2015").onclick = function(){
-  document.getElementById("2015_map").style.display = "block";
-  document.getElementById("2016_map").style.display = "none";
-  document.getElementById("2017_map").style.display = "none";
-  document.getElementById("2015").className = "typeButton typeButtonOver";
-	document.getElementById("2016").className = "typeButton";
-	document.getElementById("2017").className = "typeButton";
-}
+    yearCSV("2015", factor);
+    yearCSV("2016", factor);
+    yearCSV("2017", factor);
 
-document.getElementById("2016").onclick = function(){
-  document.getElementById("2016_map").style.display = "block";
-  document.getElementById("2015_map").style.display = "none";
-  document.getElementById("2017_map").style.display = "none";
-  document.getElementById("2016").className = "typeButton typeButtonOver";
-	document.getElementById("2015").className = "typeButton";
-	document.getElementById("2017").className = "typeButton";
-}
+    // make world map svg and color
+    function worldMapSVG(year, world, country_object, country_rank, idToCountry, maxRank) {
+        const countries = topojson.feature(world, world.objects.countries);
+        const countriesMesh = topojson.mesh(world, world.objects.countries);
+        const projection = d3.geoEqualEarth().fitSize([mapWidth, mapHeight], countries);
+        const path = d3.geoPath().projection(projection);
+        const svg = d3.select("svg#happinessMap" + year);
+        const map = svg.append("g")
+            .attr("transform", "translate(" + (-140) + "," + margin.top + ")");
+        map.selectAll("path").data(countries.features)
+            .enter()
+            .append("path")
+            .attr("class", "country")
+            .attr("d", path);
+        map.append("path")
+            .datum(countriesMesh)
+            .attr("class", "outline")
+            .attr("d", path);
+        const colorScale = d3.scaleQuantile()
+            .domain(d3.values(country_object))
+            .range(["#c8ddf0", "#4592c7", "#1561a8", "#08306b"]);
+        map.selectAll(".country")
+            .call(d3.helper.tip(function (d) {
+                if (country_rank[idToCountry[d.id]] == 0) {
+                    return "<b>Country: " + idToCountry[d.id] + "</b><br> <b>Score: " + country_object[idToCountry[d.id]] + "</b><br> <b>Rank: " + maxRank + "</b>";
+                }
+                return "<b>Country: " + idToCountry[d.id] + "</b><br> <b>Score: " + country_object[idToCountry[d.id]] + "</b><br> <b>Rank: " + country_rank[idToCountry[d.id]] + "</b>";
+            }))
+            .style('fill', function (d) {
+                return colorScale(country_object[idToCountry[d.id]]);
+            });
+    }
 
-document.getElementById("2017").onclick = function(){
-  document.getElementById("2017_map").style.display = "block";
-  document.getElementById("2015_map").style.display = "none";
-  document.getElementById("2016_map").style.display = "none";
-  document.getElementById("2017").className = "typeButton typeButtonOver";
-	document.getElementById("2016").className = "typeButton";
-	document.getElementById("2015").className = "typeButton";
-}
+    // create a legend for map
+    function worldMapLegend(year) {
+        const legend = d3.select("svg#legend" + year);
+        const legendW = 300;
+        const legendH = 50;
+        const bar_scale = d3.scaleLinear()
+            .domain([0, 8])
+            .range([0, 250]);
+        const pixel_scale = d3.scaleLinear()
+            .domain([0, 250])
+            .range([0, 8]);
+        const bar_axis = d3.axisBottom(bar_scale)
+            .ticks(10, d3.format(".2n"));
+        legend.append("g")
+            .attr("transform", "translate(" + (10) + "," + (45) + ")")
+            .call(bar_axis);
+        const bar = legend.append("g")
+            .attr("transform", "translate(" + (10) + "," + (0) + ")");
+        const color_scale = d3.scaleQuantile()
+            .domain([0, 8])
+            .range(["#c8ddf0", "#4592c7", "#1561a8", "#08306b"]);
+        for (i = 0; i < 250; i += 1) {
+            bar.append("rect")
+                .attr("x", i)
+                .attr("y", 0)
+                .attr("height", 40)
+                .attr("width", 1)
+                .style("fill", color_scale(pixel_scale(i)));
+        }
+    }
+
+    // CREATE REGRESSION
+    function regressionLine(d, xFactor, yFactor, minX, maxX,) {
+        const n = d.length;
+
+        let sum = 0;
+        let xSum = 0;
+        let ySum = 0;
+        let sumSq = 0;
+        console.log(d, xFactor, yFactor);
+
+        d.forEach((p) => {
+            sum += p[xFactor] * p[yFactor];
+            xSum += p[xFactor];
+            ySum += p[yFactor];
+            sumSq += p[xFactor] * p[xFactor];
+        });
+
+        const a = sum * n;
+        const b = xSum * ySum;
+        const c = sumSq * n;
+        const s = xSum * xSum;
+
+        const slope = (a - b) / (c - s);
+
+        const e = ySum;
+
+        const f = slope * xSum;
+
+        const intercept = (e - f) / n;
+
+        return {
+            p1: {
+                x: minX,
+                y: slope * minX + intercept,
+            },
+            p2: {
+                x: maxX,
+                y: slope * maxX + intercept,
+            }
+        }
+
+    }
+
+    // CREATE SCATTERPLOTS
+    function worldScatterPlot(year, scatter_data, factor) {
+        const scatterSVG = d3.select("svg#scatterplot" + year + factor);
+        const continent_scale = d3.scaleOrdinal().range(["B865AB", "CD0027", "824F60", "E75B57", "E47A0A",
+            "D98E4D", "FFCD2A", "006347", "AAD272", "708C4C", "48B9B6"]);
+
+        // x-axis [gdp, life, family, trust, freedom]
+        const x_min = d3.min(scatter_data, d => d[factor]);
+        const y_min = d3.min(scatter_data, d => d['happiness']);
+
+        const x_max = d3.max(scatter_data, d => d[factor]);
+        const y_max = d3.max(scatter_data, d => d['happiness']);
+
+        const x_scale = d3.scaleLinear()
+            .domain([x_min, x_max])
+            .range([0, scatterWidth]);
+        // y-axis- happiness score
+        const h_scale = d3.scaleLinear()
+            .domain([0, 10])
+            .range([scatterHeight, 0]);
+
+        const xAxis = d3.axisBottom(x_scale);
+        scatterSVG.append("g")
+            .attr("transform", "translate(" + margin.left + "," + (margin.top + scatterHeight + 10) + ")")
+            .call(xAxis);
+        scatterSVG.append("text")
+            .attr("transform", "translate(" + ((scatterWidth / 2) + 50) + " ," + (scatterHeight + margin.top + 50) + ")")
+            .style("text-anchor", "middle")
+            .text(factor + ' Factor');
+
+        const yAxis = d3.axisLeft(h_scale);
+        scatterSVG.append("g")
+            .attr("transform", "translate(" + (margin.left - 10) + "," + margin.top + ")")
+            .call(yAxis);
+        scatterSVG.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0)
+            .attr("x", 0 - (scatterHeight / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Happiness Index (1-10)");
+        const scatterPlot = scatterSVG.append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        scatter_data.forEach((d) => {
+            const continent = continent_scale(d['Region']);
+            const happiness = h_scale(d['happiness']);
+            const x = x_scale(d[factor]);
+
+            const plots = scatterPlot.append('circle')
+                .attr("continent", d["Region"])
+                .attr("country", d["Country"])
+                .attr('cx', x)
+                .attr('cy', happiness)
+                .attr("r", 4)
+                .style("fill", continent);
+        });
+
+        const regression = regressionLine(scatter_data, factor, 'happiness', x_min, x_max);
+
+        console.log(regression);
+        console.log(factor, 'xmin', x_min, 'xmax', x_max, 'ymin',y_min,'ymax',y_max);
+
+        scatterPlot.append('line')
+            .attr('class', 'regression')
+            // .attr("transform", "translate(" + (scatterWidth/2 + margin.left) + "," + (0) + ")")
+            .attr('x1', x_scale(regression.p1.x))
+            .attr('y1', h_scale(regression.p1.y))
+            .attr('x2', x_scale(regression.p2.x))
+            .attr('y2', h_scale(regression.p2.y));
+
+    }
+
+    // button-display year
+    document.getElementById("2016_map").style.display = "none";
+    document.getElementById("2017_map").style.display = "none";
+    document.getElementById("2015").onclick = function () {
+        document.getElementById("2015_map").style.display = "block";
+        document.getElementById("2016_map").style.display = "none";
+        document.getElementById("2017_map").style.display = "none";
+        document.getElementById("2015").className = "typeButton typeButtonOver";
+        document.getElementById("2016").className = "typeButton";
+        document.getElementById("2017").className = "typeButton";
+    };
+
+    document.getElementById("2016").onclick = function () {
+        document.getElementById("2016_map").style.display = "block";
+        document.getElementById("2015_map").style.display = "none";
+        document.getElementById("2017_map").style.display = "none";
+        document.getElementById("2016").className = "typeButton typeButtonOver";
+        document.getElementById("2015").className = "typeButton";
+        document.getElementById("2017").className = "typeButton";
+    };
+
+    document.getElementById("2017").onclick = function () {
+        document.getElementById("2017_map").style.display = "block";
+        document.getElementById("2015_map").style.display = "none";
+        document.getElementById("2016_map").style.display = "none";
+        document.getElementById("2017").className = "typeButton typeButtonOver";
+        document.getElementById("2016").className = "typeButton";
+        document.getElementById("2015").className = "typeButton";
+    }
 
 </script>
 
