@@ -259,6 +259,18 @@
     // change value of factor
     let factor = 'GDP';
 
+    const countryToRegion = {};
+
+    const map15 = yearCSV("2015", factor);
+    const map16 = yearCSV("2016", factor);
+    const map17 = yearCSV("2017", factor);
+
+    const getRegion = async function(country) {
+        await map15;
+        await map16;
+        return countryToRegion[country] || 'None';
+    };
+
     function changeFactor(year, value) {
         const factors = ['GDP', 'LifeExp', 'Family', 'Trust', 'Freedom'];
         for (i in factors) {
@@ -273,85 +285,98 @@
         // (yearCSV(year)worldScatterPlot(year,scatter_data,factor);
     }
 
-    function yearCSV(year, factor) {
-        d3.json("world-110m.json").then(function (world) {
-            d3.csv("data_worldHappiness/" + year + ".csv").then(function (dataYear) {
-                d3.tsv("world-110m-country-names.tsv").then(function (countryID) {
-                    const country_object = {};
-                    const country_rank = {};
-                    const idToCountry = {};
+    async function yearCSV(year, factor) {
+        Promise.all([
+            d3.json("world-110m.json"),
+            d3.csv("data_worldHappiness/" + year + ".csv"),
+            d3.tsv("world-110m-country-names.tsv"),
+        ]).then(async function (vals) {
+            const world = vals[0];
+            let dataYear = vals[1];
+            const countryID = vals[2];
 
-                    countryID.forEach(row => {
-                        country_object[row.name] = 0;
-                        country_rank[row.name] = 0;
-                        idToCountry[row.id] = row.name;
-                    });
+            const country_object = {};
+            const country_rank = {};
+            const idToCountry = {};
 
-                    // scatterplot data
-                    dataYear.forEach((d, i) => {
-                        if (year === '2017') {
-                            country_object[d.Country] += d['Happiness.Score'];
-                            country_rank[d.Country] = d['Happiness.Rank'];
-                            d['happiness'] = Number(d['Happiness.Score']);
-                            d['GDP'] = Number(d['Economy..GDP.per.Capita.']);
-                            d['Family'] = Number(d['Family']);
-                            d['LifeExp'] = Number(d['Health..Life.Expectancy.']);
-                            d['Freedom'] = Number(d['Freedom']);
-                            d['Trust'] = Number(d['Trust..Government.Corruption.'])
-                        } else {
-                            country_object[d.Country] += d['Happiness Score'];
-                            country_rank[d.Country] = d['Happiness Rank'];
-                            d['happiness'] = Number(d['Happiness Score']);
-                            d['GDP'] = Number(d['Economy (GDP per Capita)']);
-                            d['Family'] = Number(d['Family']);
-                            d['LifeExp'] = Number(d['Health (Life Expectancy)']);
-                            d['Freedom'] = Number(d['Freedom']);
-                            d['Trust'] = Number(d['Trust (Government Corruption)'])
-                        }
-                    });
-                    const scatter_data = dataYear.filter(d =>
-                        d['happiness'] !== 0
-                        && d['GDP'] !== 0
-                        && d['Family'] !== 0
-                        && d['LifeExp'] !== 0
-                        && d['Freedom'] !== 0
-                        && d['Trust'] !== 0);
-                    // console.log(dataYear)
-                    // console.log(Object.keys(idToCountry).length);
-                    let tip;
-                    d3.helper = {};
-                    d3.helper.tip = function (text) {
-                        return function (selectedCountry) {
-                            const textBox = d3.select("body").node();
-                            selectedCountry.on("mouseover", function (d, i) {
-                                d3.select("body").selectAll(".tip").remove();
-                                const position = d3.mouse(textBox);
-                                tip = d3.select("body").append("div").attr("class", "tip");
-                                const tipH = parseFloat(tip.style("height"));
-                                tip.style("left", position[0]).style("top", position[1] + tipH).html(text(d, i));
-                            })
-                                .on("mouseout", function (d, i) {
-                                    tip.remove();
-                                });
-                        };
-                    };
-
-                    const scoreArr = Object.values(country_rank).map(Number).filter(Number);
-                    const maxRank = Math.max.apply(null, scoreArr) + 1;
-
-                    worldMapSVG(year, world, country_object, country_rank, idToCountry, maxRank);
-                    // create legend for each year
-                    worldMapLegend(year);
-                    // create scatterplot
-                    worldScatterPlot(year, scatter_data, factor);
-                });
+            countryID.forEach(row => {
+                country_object[row.name] = 0;
+                country_rank[row.name] = 0;
+                idToCountry[row.id] = row.name;
             });
+
+            // scatterplot data
+            dataYear = dataYear.map(async (d, i) => {
+                if (year === '2017' || year === 2017) {
+                    country_object[d.Country] += d['Happiness.Score'];
+                    country_rank[d.Country] = d['Happiness.Rank'];
+                    d['happiness'] = Number(d['Happiness.Score']);
+                    d['GDP'] = Number(d['Economy..GDP.per.Capita.']);
+                    d['Family'] = Number(d['Family']);
+                    d['LifeExp'] = Number(d['Health..Life.Expectancy.']);
+                    d['Freedom'] = Number(d['Freedom']);
+                    d['Trust'] = Number(d['Trust..Government.Corruption.']);
+                    d['Region'] = await getRegion(d.Country);
+                    console.log(d);
+                } else {
+                    country_object[d.Country] += d['Happiness Score'];
+                    country_rank[d.Country] = d['Happiness Rank'];
+                    d['happiness'] = Number(d['Happiness Score']);
+                    d['GDP'] = Number(d['Economy (GDP per Capita)']);
+                    d['Family'] = Number(d['Family']);
+                    d['LifeExp'] = Number(d['Health (Life Expectancy)']);
+                    d['Freedom'] = Number(d['Freedom']);
+                    d['Trust'] = Number(d['Trust (Government Corruption)']);
+                    if(!countryToRegion[d.Country]) {
+                        countryToRegion[d.Country] = d.Region;
+                    }
+                }
+                return d;
+            });
+
+            dataYear = await Promise.all(dataYear).then((d) => {
+                return d;
+            });
+
+            const scatter_data = dataYear.filter(d =>
+                d['happiness'] !== 0
+                && d['GDP'] !== 0
+                && d['Family'] !== 0
+                && d['LifeExp'] !== 0
+                && d['Freedom'] !== 0
+                && d['Trust'] !== 0
+                && d['Region']
+            );
+            // console.log(dataYear)
+            // console.log(Object.keys(idToCountry).length);
+            let tip;
+            d3.helper = {};
+            d3.helper.tip = function (text) {
+                return function (selectedCountry) {
+                    const textBox = d3.select("body").node();
+                    selectedCountry.on("mouseover", function (d, i) {
+                        d3.select("body").selectAll(".tip").remove();
+                        const position = d3.mouse(textBox);
+                        tip = d3.select("body").append("div").attr("class", "tip");
+                        const tipH = parseFloat(tip.style("height"));
+                        tip.style("left", position[0]).style("top", position[1] + tipH).html(text(d, i));
+                    })
+                        .on("mouseout", function (d, i) {
+                            tip.remove();
+                        });
+                };
+            };
+
+            const scoreArr = Object.values(country_rank).map(Number).filter(Number);
+            const maxRank = Math.max.apply(null, scoreArr) + 1;
+
+            worldMapSVG(year, world, country_object, country_rank, idToCountry, maxRank);
+            // create legend for each year
+            worldMapLegend(year);
+            // create scatterplot
+            worldScatterPlot(year, scatter_data, factor);
         });
     }
-
-    yearCSV("2015", factor);
-    yearCSV("2016", factor);
-    yearCSV("2017", factor);
 
     // make world map svg and color
     function worldMapSVG(year, world, country_object, country_rank, idToCountry, maxRank) {
@@ -466,7 +491,7 @@
         const scatterSVG = d3.select("svg#scatterplot" + year + factor);
         const continent_scale = d3.scaleOrdinal().range(["B865AB", "CD0027", "824F60", "E75B57", "E47A0A",
             "D98E4D", "FFCD2A", "006347", "AAD272", "708C4C", "48B9B6"]);
-
+        
         // x-axis [gdp, life, family, trust, freedom]
         const x_min = d3.min(scatter_data, d => d[factor]);
         const y_min = d3.min(scatter_data, d => d['happiness']);
@@ -525,35 +550,30 @@
                 plots.on('mouseover', () => {
                     plots
                         .transition().duration(200)
-                        .attr("r",d['happiness'] * 2)
-                        .style("stroke","#000");
+                        .attr("r", d['happiness'] * 2)
+                        .style("stroke", "#000");
 
                     // Add a label
                     scatterSVG.append("text")
-                        .attr("id", d['Country'].replace(/[ _\-,.:'#!\?]/g,""))  // We need to be able to find this to remove it later, so lets store an ID
-                        .attr("x", x )
-                        .attr("y", happiness - 15 )
+                        .attr("id", d['Country'].replace(/[ _\-,.:'#!\?]/g, ""))  // We need to be able to find this to remove it later, so lets store an ID
+                        .attr("x", x)
+                        .attr("y", happiness - 15)
                         .text(d['Country'] + ' (' + d['Region'] + ')');
                 });
 
                 plots.on("mouseout", () => {
                     plots
                         .transition().duration(200)
-                        .attr("r",4)
-                        .style("stroke","none");
+                        .attr("r", 4)
+                        .style("stroke", "none");
                     // Grab label by element ID
-                    d3.select("#" + d['Country'].replace(/[ _\-,.:'#!\?]/g,"")).remove();
+                    d3.select("#" + d['Country'].replace(/[ _\-,.:'#!\?]/g, "")).remove();
                 });
 
             }
         });
 
-        console.log(regions);
-
         const regression = regressionLine(scatter_data, factor, 'happiness', x_min, x_max, null);
-
-        // console.log(regression);
-        // console.log(factor, 'xmin', x_min, 'xmax', x_max, 'ymin',y_min,'ymax',y_max);
 
         scatterPlot.append('line')
             .attr('class', 'regression')
@@ -563,13 +583,13 @@
             .attr('y2', h_scale(regression.p2.y))
             .attr('opacity', 0.5);
 
-        d3.select('#continents'+year).selectAll("*").remove();
+        d3.select('#continents' + year).selectAll("*").remove();
 
         for (const entry in regions) {
             if (!regions.hasOwnProperty(entry)) continue;
             const region = entry;
             const color = regions[region];
-            d3.select('#continents'+year)
+            d3.select('#continents' + year)
                 .append('span').text(region)
                 .style('color', color)
                 .on('mouseover', function () {
@@ -577,8 +597,7 @@
                         let circle = d3.select(this);
                         if (circle.attr('region') === region) {
                             circle.attr('opacity', 1.0);
-                        }
-                        else {
+                        } else {
                             circle.attr('opacity', 0.1);
                         }
                     });
@@ -596,7 +615,7 @@
                 });
         }
 
-        d3.select('#continents'+year).on('mouseout', function () {
+        d3.select('#continents' + year).on('mouseout', function () {
             scatterPlot.selectAll('circle').attr('opacity', 0.8);
             scatterPlot.selectAll('line').remove();
 
