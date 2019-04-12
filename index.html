@@ -134,10 +134,33 @@
         stroke: darkred;
     }
 
-    span {
-        margin: 10px;
-        font-size: large;
+    #continents2015{
+      float:left;
+      margin-top: 10px;
+      margin-right: 20px;
+      width : 200px;
     }
+    #continents2016{
+      float:left;
+      margin-top: 10px;
+      margin-right: 20px;
+      width : 200px;
+    }
+    #continents2017{
+      float:left;
+      margin-top: 10px;
+      margin-right: 20px;
+      width : 200px;
+    }
+
+    span {
+        margin-right: 10px;
+        display: block;
+        font-size: 16;
+        margin-bottom: 10px;
+    }
+
+
 </style>
 
 <body>
@@ -165,7 +188,7 @@
 
 <!-- buttons to select year -->
 <h2>SELECT YEAR</h2>
-<div class="instructions"> Click a button below to view the choropleth map for each year.</div>
+<div class="instructions"> Click a button below to view the choropleth map and scatterplot for each year.</div>
 <form>
     <button id="2015" type="button" class="typeButton typeButtonOver">2015</button>
     <button id="2016" type="button" class="typeButton">2016</button>
@@ -185,6 +208,8 @@
         <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2015, this.value)">
         <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2015, this.value)">
     </form>
+    <br>
+    <h2>HOVER REGIONS</h2>
     <div id="continents2015"></div>
     <div>
         <svg class="scatterplot" id="scatterplot2015GDP" height="400" width="800"></svg>
@@ -207,6 +232,8 @@
         <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2016, this.value)">
         <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2016, this.value)">
     </form>
+    <br>
+    <h2>HOVER REGIONS</h2>
     <div id="continents2016"></div>
     <div>
         <svg class="scatterplot" id="scatterplot2016GDP" height="400" width="800"></svg>
@@ -229,6 +256,9 @@
         <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2017, this.value)">
         <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2017, this.value)">
     </form>
+    <br>
+
+    <h2>HOVER REGIONS</h2>
     <div id="continents2017"></div>
     <div>
         <svg class="scatterplot" id="scatterplot2017GDP" height="400" width="800"></svg>
@@ -237,6 +267,7 @@
         <svg class="scatterplot" id="scatterplot2017Trust" height="400" width="800"></svg>
         <svg class="scatterplot" id="scatterplot2017Freedom" height="400" width="800"></svg>
     </div>
+
 </div>
 </body>
 
@@ -491,7 +522,7 @@
         const scatterSVG = d3.select("svg#scatterplot" + year + factor);
         const continent_scale = d3.scaleOrdinal().range(["B865AB", "CD0027", "824F60", "E75B57", "E47A0A",
             "D98E4D", "FFCD2A", "006347", "AAD272", "708C4C", "48B9B6"]);
-        
+
         // x-axis [gdp, life, family, trust, freedom]
         const x_min = d3.min(scatter_data, d => d[factor]);
         const y_min = d3.min(scatter_data, d => d['happiness']);
@@ -589,10 +620,13 @@
             if (!regions.hasOwnProperty(entry)) continue;
             const region = entry;
             const color = regions[region];
-            d3.select('#continents' + year)
-                .append('span').text(region)
+            let regionText = d3.select('#continents' + year)
+                .append('span')
+                .text(region)
                 .style('color', color)
-                .on('mouseover', function () {
+                regionText.on('mouseover', function () {
+                    this.style.fontSize = "22";
+
                     scatterPlot.selectAll('circle').each(function () {
                         let circle = d3.select(this);
                         if (circle.attr('region') === region) {
@@ -613,11 +647,18 @@
                         .attr('y2', h_scale(subsetRegression.p2.y))
                         .attr('opacity', 0.5);
                 });
+
+                regionText.on('mouseout',function(){
+                  this.style.fontSize = "16";
+                })
+
         }
 
         d3.select('#continents' + year).on('mouseout', function () {
             scatterPlot.selectAll('circle').attr('opacity', 0.8);
             scatterPlot.selectAll('line').remove();
+
+            // this.style.fontWeight = "20";
 
             scatterPlot.append('line')
                 .attr('class', 'regression')
