@@ -145,6 +145,29 @@
         white-space: nowrap;
     }
 
+    .visContainer {
+        display: inline;
+        float: left;
+        width: 50vw;
+        height: 50vh;
+    }
+
+    .visualizations {
+        height: 50vh;
+        width: 100vw;
+    }
+
+    .right {
+        float: right !important;
+    }
+
+    .center {
+        margin: auto;
+        text-align: center;
+        display: block;
+        width: 100vw;
+    }
+
 
 </style>
 
@@ -172,100 +195,119 @@
     Design inspiration from https://mimno.github.io/showcase/project2/workforce/ </p></br>
 
 <!-- buttons to select year -->
-<h2>SELECT YEAR</h2>
-<div class="instructions"> Click a button below to view the choropleth map and scatterplot for each year.</div>
-<form>
+<div class="center">
+    <h2>SELECT YEAR</h2>
+    <div class="instructions"> Click a button below to view the choropleth map and scatterplot for each year.</div>
+    <form>
     <button id="2015" type="button" class="typeButton typeButtonOver">2015</button>
     <button id="2016" type="button" class="typeButton">2016</button>
     <button id="2017" type="button" class="typeButton">2017</button>
 </form>
 <p class="note">*Hover over each country to see the happiness score and rank (out of 159) </p>
 <!-- map of countries -->
-<div id="2015_map">
-    <svg class="happinessMap" id="happinessMap2015" height="600" width="1200"></svg>
-    <svg class="legend" id="legend2015"></svg>
-    <h2>WHAT AFFECTS HAPPINESS?</h2>
-    <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
-    <form>
-        <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2015, this.value)">
-        <input type="button" class="typeButton" value="Family" onclick="changeFactor(2015, this.value)">
-        <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2015, this.value)">
-        <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2015, this.value)">
-        <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2015, this.value)">
-    </form>
-    <br>
-    <h2>HOVER REGIONS</h2>
-    <div class="instructions"> Hover over a region name to highlight a region's countries and show a regression line if the sample is large enough.</div>
-    <div id="continents2015"></div>
-    <div>
-        <svg class="scatterplot" id="scatterplot2015GDP" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2015Family" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2015LifeExp" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2015Trust" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2015Freedom" height="600" width="900"></svg>
-    </div>
-</div>
-
-<div id="2016_map">
-    <svg class="happinessMap" id="happinessMap2016" height="600" width="1200"></svg>
-    <svg class="legend" id="legend2016"></svg>
-    <h2>WHAT AFFECTS HAPPINESS?</h2>
-    <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
-    <form>
-        <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2016, this.value)">
-        <input type="button" class="typeButton" value="Family" onclick="changeFactor(2016, this.value)">
-        <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2016, this.value)">
-        <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2016, this.value)">
-        <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2016, this.value)">
-    </form>
-    <br>
-    <h2>HOVER REGIONS</h2>
-    <div class="instructions"> Hover over a region name to highlight a region's countries and show a regression line if the sample is large enough.</div>
-    <div id="continents2016"></div>
-    <div>
-        <svg class="scatterplot" id="scatterplot2016GDP" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2016Family" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2016LifeExp" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2016Trust" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2016Freedom" height="600" width="900"></svg>
-    </div>
-</div>
-
-<div id="2017_map">
-    <svg class="happinessMap" id="happinessMap2017" height="600" width="1200"></svg>
-    <svg class="legend" id="legend2017"></svg>
-    <h2>WHAT AFFECTS HAPPINESS?</h2>
-    <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
-    <form>
-        <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2017, this.value)">
-        <input type="button" class="typeButton" value="Family" onclick="changeFactor(2017, this.value)">
-        <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2017, this.value)">
-        <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2017, this.value)">
-        <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2017, this.value)">
-    </form>
-    <br>
-    <h2>HOVER REGIONS</h2>
-    <div class="instructions"> Hover over a region name to highlight a region's countries and show a regression line if the sample is large enough.</div>
-    <div id="continents2017"></div>
-    <div>
-        <svg class="scatterplot" id="scatterplot2017GDP" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2017Family" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2017LifeExp" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2017Trust" height="600" width="900"></svg>
-        <svg class="scatterplot" id="scatterplot2017Freedom" height="600" width="900"></svg>
+    <div id="2015_map" class="visualizations">
+        <div class="visContainer">
+            <svg class="happinessMap" id="happinessMap2015" height="100%" width="100%"></svg>
+            <svg class="legend" id="legend2015"></svg>
+        </div>
+        <div class="visContainer right">
+            <h2>WHAT AFFECTS HAPPINESS?</h2>
+            <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
+            <form>
+                <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2015, this.value)">
+                <input type="button" class="typeButton" value="Family" onclick="changeFactor(2015, this.value)">
+                <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2015, this.value)">
+                <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2015, this.value)">
+                <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2015, this.value)">
+            </form>
+            <br>
+            <h2>HOVER REGIONS</h2>
+            <div class="instructions"> Hover over a region name to highlight a region's countries and show a regression line if the sample is large enough.</div>
+            <div id="continents2015"></div>
+            <div>
+                <svg class="scatterplot" id="scatterplot2015GDP" height="100%" width="100%"></svg>
+                <svg class="scatterplot" id="scatterplot2015Family" height="100%" width="100%" style="display: none"></svg>
+                <svg class="scatterplot" id="scatterplot2015LifeExp" height="100%" width="100%" style="display: none"></svg>
+                <svg class="scatterplot" id="scatterplot2015Trust" height="100%" width="100%" style="display: none"></svg>
+                <svg class="scatterplot" id="scatterplot2015Freedom" height="100%" width="100%" style="display: none"></svg>
+            </div>
+        </div>
     </div>
 
+    <div id="2016_map" class="visualizations">
+        <div class="visContainer">
+            <svg class="happinessMap" id="happinessMap2016" height="100%" width="100%"></svg>
+            <svg class="legend" id="legend2016"></svg>
+        </div>
+        <div class="visContainer right">
+            <h2>WHAT AFFECTS HAPPINESS?</h2>
+            <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
+            <form>
+                <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2016, this.value)">
+                <input type="button" class="typeButton" value="Family" onclick="changeFactor(2016, this.value)">
+                <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2016, this.value)">
+                <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2016, this.value)">
+                <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2016, this.value)">
+            </form>
+            <br>
+            <h2>HOVER REGIONS</h2>
+            <div class="instructions"> Hover over a region name to highlight a region's countries and show a regression line if the sample is large enough.</div>
+            <div id="continents2016"></div>
+            <div>
+                <svg class="scatterplot" id="scatterplot2016GDP" height="100%" width="100%"></svg>
+                <svg class="scatterplot" id="scatterplot2016Family" height="100%" width="100%" style="display: none"></svg>
+                <svg class="scatterplot" id="scatterplot2016LifeExp" height="100%" width="100%" style="display: none"></svg>
+                <svg class="scatterplot" id="scatterplot2016Trust" height="100%" width="100%" style="display: none"></svg>
+                <svg class="scatterplot" id="scatterplot2016Freedom" height="100%" width="100%" style="display: none"></svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="2017_map" class="visualizations">
+        <div class="visContainer">
+            <svg class="happinessMap" id="happinessMap2017" height="100%" width="100%"></svg>
+            <svg class="legend" id="legend2017"></svg>
+        </div>
+        <div class="visContainer right">
+            <h2>WHAT AFFECTS HAPPINESS?</h2>
+            <div class="instructions"> Click a button below to view how each factor can affect happiness.</div>
+            <form>
+                <input type="button" class="typeButton" value="GDP" onclick="changeFactor(2017, this.value)">
+                <input type="button" class="typeButton" value="Family" onclick="changeFactor(2017, this.value)">
+                <input type="button" class="typeButton" value="LifeExp" onclick="changeFactor(2017, this.value)">
+                <input type="button" class="typeButton" value="Trust" onclick="changeFactor(2017, this.value)">
+                <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2017, this.value)">
+            </form>
+            <br>
+            <h2>HOVER REGIONS</h2>
+            <div class="instructions"> Hover over a region name to highlight a region's countries and show a regression line if the sample is large enough.</div>
+            <div id="continents2017"></div>
+            <div>
+                <svg class="scatterplot" id="scatterplot2017GDP" height="100%" width="100%"></svg>
+                <svg class="scatterplot" id="scatterplot2017Family" height="100%" width="100%" style="display: none"></svg>
+                <svg class="scatterplot" id="scatterplot2017LifeExp" height="100%" width="100%" style="display: none"></svg>
+                <svg class="scatterplot" id="scatterplot2017Trust" height="100%" width="100%" style="display: none"></svg>
+                <svg class="scatterplot" id="scatterplot2017Freedom" height="100%" width="100%" style="display: none"></svg>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 
 <script>
     // TODO round decimals for happiness score 2017
 
-    const height = 600;
-    const width = 1200;
+    let height = d3.select("svg#happinessMap2015").style("height");
+    let width = d3.select("svg#happinessMap2015").style("width");
+    height = parseInt(height.substring(0, height.length - 2));
+    width = parseInt(width.substring(0, width.length - 2));
 
-    const scatterH = 600;
-    const scatterW = 900;
+    let scatterH = d3.select("svg#scatterplot2015GDP").style("height");
+    let scatterW = d3.select("svg#scatterplot2015GDP").style("width");
+    scatterH = parseInt(scatterH.substring(0, scatterH.length - 2));
+    scatterW = parseInt(scatterW.substring(0, scatterW.length - 2));
+
+    console.log(height);
 
     const margin = {top: 20, right: 20, bottom: 60, left: 60};
     const mapHeight = height - margin.top - margin.bottom;
@@ -410,7 +452,7 @@
         const path = d3.geoPath().projection(projection);
         const svg = d3.select("svg#happinessMap" + year);
         const map = svg.append("g")
-            .attr("transform", "translate(" + (-140) + "," + margin.top + ")");
+            .attr("transform", "translate(" + 0 + "," + margin.top + ")");
         map.selectAll("path").data(countries.features)
             .enter()
             .append("path")
@@ -676,6 +718,7 @@
     // button-display year
     document.getElementById("2016_map").style.display = "none";
     document.getElementById("2017_map").style.display = "none";
+
     document.getElementById("2015").onclick = function () {
         document.getElementById("2015_map").style.display = "block";
         document.getElementById("2016_map").style.display = "none";
