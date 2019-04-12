@@ -134,30 +134,15 @@
         stroke: darkred;
     }
 
-    #continents2015{
-      float:left;
-      margin-top: 10px;
-      margin-right: 20px;
-      width : 200px;
-    }
-    #continents2016{
-      float:left;
-      margin-top: 10px;
-      margin-right: 20px;
-      width : 200px;
-    }
-    #continents2017{
-      float:left;
-      margin-top: 10px;
-      margin-right: 20px;
-      width : 200px;
-    }
-
     span {
         margin-right: 10px;
-        display: block;
-        font-size: 16;
+        font-size: 16px;
         margin-bottom: 10px;
+        margin-top: 10px;
+        border: 1px solid #2166ac;
+        display: inline-block;
+        padding: 10px;
+        white-space: nowrap;
     }
 
 
@@ -210,6 +195,7 @@
     </form>
     <br>
     <h2>HOVER REGIONS</h2>
+    <div class="instructions"> Hover over a region name to highlight a region's countries and show a regression line if the sample is large enough.</div>
     <div id="continents2015"></div>
     <div>
         <svg class="scatterplot" id="scatterplot2015GDP" height="400" width="800"></svg>
@@ -234,6 +220,7 @@
     </form>
     <br>
     <h2>HOVER REGIONS</h2>
+    <div class="instructions"> Hover over a region name to highlight a region's countries and show a regression line if the sample is large enough.</div>
     <div id="continents2016"></div>
     <div>
         <svg class="scatterplot" id="scatterplot2016GDP" height="400" width="800"></svg>
@@ -257,8 +244,8 @@
         <input type="button" class="typeButton" value="Freedom" onclick="changeFactor(2017, this.value)">
     </form>
     <br>
-
     <h2>HOVER REGIONS</h2>
+    <div class="instructions"> Hover over a region name to highlight a region's countries and show a regression line if the sample is large enough.</div>
     <div id="continents2017"></div>
     <div>
         <svg class="scatterplot" id="scatterplot2017GDP" height="400" width="800"></svg>
@@ -296,7 +283,7 @@
     const map16 = yearCSV("2016", factor);
     const map17 = yearCSV("2017", factor);
 
-    const getRegion = async function(country) {
+    const getRegion = async function (country) {
         await map15;
         await map16;
         return countryToRegion[country] || 'None';
@@ -304,8 +291,14 @@
 
     function changeFactor(year, value) {
         const factors = ['GDP', 'LifeExp', 'Family', 'Trust', 'Freedom'];
+        const svg = d3.select("svg#happinessMap" + year);
+        const legend = d3.select("svg#legend" + year);
         for (i in factors) {
             if (factors[i] === value) {
+                const scatterSVG = d3.select("svg#scatterplot" + year + factor);
+                scatterSVG.selectAll("*").remove();
+                svg.selectAll("*").remove();
+                legend.selectAll('*').remove();
                 document.getElementById("scatterplot" + year + factors[i]).style.display = "block";
             } else {
                 document.getElementById("scatterplot" + year + factors[i]).style.display = "none";
@@ -358,7 +351,7 @@
                     d['LifeExp'] = Number(d['Health (Life Expectancy)']);
                     d['Freedom'] = Number(d['Freedom']);
                     d['Trust'] = Number(d['Trust (Government Corruption)']);
-                    if(!countryToRegion[d.Country]) {
+                    if (!countryToRegion[d.Country]) {
                         countryToRegion[d.Country] = d.Region;
                     }
                 }
@@ -474,6 +467,7 @@
     }
 
     // CREATE REGRESSION
+    // adapted from https://bl.ocks.org/HarryStevens/be559bed98d662f69e68fc8a7e0ad097
     function regressionLine(d, xFactor, yFactor, minX, maxX, region = null) {
         let n = 0;
         let sum = 0;
@@ -512,7 +506,8 @@
             p2: {
                 x: maxX,
                 y: slope * maxX + intercept,
-            }
+            },
+            n,
         }
 
     }
@@ -623,22 +618,27 @@
             let regionText = d3.select('#continents' + year)
                 .append('span')
                 .text(region)
-                .style('color', color)
-                regionText.on('mouseover', function () {
-                    this.style.fontSize = "22";
+                .style('color', color);
 
-                    scatterPlot.selectAll('circle').each(function () {
-                        let circle = d3.select(this);
-                        if (circle.attr('region') === region) {
-                            circle.attr('opacity', 1.0);
-                        } else {
-                            circle.attr('opacity', 0.1);
-                        }
-                    });
+            regionText.on('mouseover', function () {
+                this.style.color = 'white';
+                this.style.background = 'black';
 
-                    scatterPlot.selectAll('line').attr('opacity', 0.2);
+                scatterPlot.selectAll('circle').each(function () {
+                    let circle = d3.select(this);
+                    if (circle.attr('region') === region) {
+                        circle.attr('opacity', 1.0);
+                    } else {
+                        circle.attr('opacity', 0.1);
+                    }
+                });
 
-                    const subsetRegression = regressionLine(scatter_data, factor, 'happiness', x_min, x_max, region);
+                scatterPlot.selectAll('line').attr('opacity', 0.2);
+
+                const subsetRegression = regressionLine(scatter_data, factor, 'happiness', x_min, x_max, region);
+
+                // don't show regression of small sample size
+                if(subsetRegression.n > 4) {
                     scatterPlot.append('line')
                         .attr('class', 'regression')
                         .attr('x1', x_scale(subsetRegression.p1.x))
@@ -646,11 +646,13 @@
                         .attr('x2', x_scale(subsetRegression.p2.x))
                         .attr('y2', h_scale(subsetRegression.p2.y))
                         .attr('opacity', 0.5);
-                });
+                }
+            });
 
-                regionText.on('mouseout',function(){
-                  this.style.fontSize = "16";
-                })
+            regionText.on('mouseout', function () {
+                this.style.color = color;
+                this.style.background = 'white';
+            })
 
         }
 
